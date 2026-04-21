@@ -1,4 +1,7 @@
 ### Futsal/Football table predictor
+## Live page
+Available here: https://mtayloooor.github.io/futsal-predictor/
+
 ## Data sources
 This page is designed to work with copy and pasted data from sources similar to the below:
 
