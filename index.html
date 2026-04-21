@@ -39,8 +39,7 @@
 8. Climate Kookaburras F.C.	17	4	1	12	2	86	118	-32	15
 9. Soccer Pals	17	4	0	13	2	66	111	-45	14
 10. St Poorly F.C.	17	3	2	12	2	75	142	-67	13
-11. RB Football Club	18	2	1	15	1	56	144	-88	8
-`;
+11. RB Football Club	18	2	1	15	1	56	144	-88	8`;
 
         const DEFAULT_SCHEDULE = `Futsal HQ - Melbourne Social Futsal Competitions
 Powered by revolutioniseSPORT
@@ -273,6 +272,13 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
         const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400 hover:text-red-600"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>;
         const IconTrophy = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
         const IconClipboard = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>;
+        const IconUpload = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>;
+        const IconChart = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>;
+        const IconFlame = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-orange-500"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>;
+        const IconGoal = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
+        const IconStar = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
+
+        const TEAM_COLORS = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#64748b', '#14b8a6', '#f43f5e', '#8b5cf6'];
 
         // --- COMPONENTS ---
         
@@ -300,9 +306,225 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
             const [currentRound, setCurrentRound] = useState(1);
             const [totalRounds, setTotalRounds] = useState(14);
             const [predictions, setPredictions] = useState([]); // [{id, round, teamA, teamB, scoreA, scoreB, isBye, time}]
-            const [activeTab, setActiveTab] = useState('import'); // 'import', 'predict'
+            const [activeTab, setActiveTab] = useState('import'); // 'import', 'history', 'predict'
+            
+            // History States
+            const [historyData, setHistoryData] = useState([]); // [{ round: 1, table: [...] }, ...]
+            const [historyMetrics, setHistoryMetrics] = useState(null);
+            const [scrubberRound, setScrubberRound] = useState(1);
+            const [highlightedTeam, setHighlightedTeam] = useState(null);
 
-            // Parse Table from Clipboard text
+            // Parse JSON File Upload
+            const handleJSONUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const json = JSON.parse(event.target.result);
+                        if (!json.standings || !json.team_results) {
+                            alert('Invalid JSON format. Expected "standings" and "team_results" keys.');
+                            return;
+                        }
+
+                        // 1. Parse Standings
+                        const parsedTeams = json.standings.map(t => ({
+                            name: t.Team,
+                            p: parseInt(t.Played, 10) || 0,
+                            w: parseInt(t.Wins, 10) || 0,
+                            d: parseInt(t.Draws, 10) || 0,
+                            l: parseInt(t.Losses, 10) || 0,
+                            b: parseInt(t.BYEs, 10) || 0,
+                            f: parseInt(t.For, 10) || 0,
+                            a: parseInt(t.Against, 10) || 0,
+                            gd: parseInt(t['Diff.'], 10) || 0,
+                            pts: parseInt(t.Points, 10) || 0,
+                            baseRank: 0
+                        }));
+
+                        parsedTeams.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.f - a.f);
+                        parsedTeams.forEach((t, i) => t.baseRank = i + 1);
+                        setBaseTable(parsedTeams);
+
+                        // --- 2. Calculate Deep History & Metrics ---
+                        let maxPlayedRound = 0;
+                        let metrics = {
+                            biggestWin: { diff: 0, teamA: '', teamB: '', scoreA: 0, scoreB: 0, round: '' },
+                            highestScoring: { total: 0, teamA: '', teamB: '', scoreA: 0, scoreB: 0, round: '' },
+                            longestStreak: { streak: 0, team: '' }
+                        };
+                        const teamStreaks = {};
+                        parsedTeams.forEach(t => teamStreaks[t.name] = { current: 0, max: 0 });
+
+                        // Find max played round
+                        Object.values(json.team_results).forEach(matches => {
+                            matches.forEach(m => {
+                                if (m.result !== null) {
+                                    const rNum = parseInt(m.round.replace(/[^0-9]/g, ''), 10);
+                                    if (rNum > maxPlayedRound) maxPlayedRound = rNum;
+                                }
+                            });
+                        });
+
+                        const currentHistoryState = {};
+                        parsedTeams.forEach(t => currentHistoryState[t.name] = { p: 0, w: 0, d: 0, l: 0, b: 0, f: 0, a: 0, gd: 0, pts: 0 });
+                        const generatedHistory = [];
+                        const uniqueMatchesProcessed = new Set(); // Prevent double counting metrics for Home/Away
+
+                        for (let r = 1; r <= maxPlayedRound; r++) {
+                            const teamsPlayingThisRound = new Set();
+                            
+                            Object.entries(json.team_results).forEach(([teamName, matches]) => {
+                                const matchThisRound = matches.find(m => parseInt(m.round.replace(/[^0-9]/g, ''), 10) === r);
+                                
+                                if (matchThisRound && matchThisRound.result !== null) {
+                                    teamsPlayingThisRound.add(teamName);
+                                    const stats = currentHistoryState[teamName];
+                                    stats.p++;
+                                    stats.f += matchThisRound.this_team_score;
+                                    stats.a += matchThisRound.opposing_team_score;
+                                    stats.gd = stats.f - stats.a;
+
+                                    if (matchThisRound.result === 'Win') { 
+                                        stats.w++; stats.pts += 3; 
+                                        teamStreaks[teamName].current++;
+                                        if (teamStreaks[teamName].current > teamStreaks[teamName].max) {
+                                            teamStreaks[teamName].max = teamStreaks[teamName].current;
+                                        }
+                                    } else {
+                                        teamStreaks[teamName].current = 0;
+                                        if (matchThisRound.result === 'Loss') stats.l++;
+                                        if (matchThisRound.result === 'Draw') { stats.d++; stats.pts += 1; }
+                                    }
+
+                                    // Metrics Check
+                                    const matchKey = `R${r}-${[teamName, matchThisRound.opponent].sort().join('-')}`;
+                                    if (!uniqueMatchesProcessed.has(matchKey)) {
+                                        uniqueMatchesProcessed.add(matchKey);
+                                        const diff = Math.abs(matchThisRound.this_team_score - matchThisRound.opposing_team_score);
+                                        const totalGoals = matchThisRound.this_team_score + matchThisRound.opposing_team_score;
+                                        
+                                        if (diff > metrics.biggestWin.diff) {
+                                            metrics.biggestWin = { diff, teamA: teamName, teamB: matchThisRound.opponent, scoreA: matchThisRound.this_team_score, scoreB: matchThisRound.opposing_team_score, round: matchThisRound.round };
+                                        }
+                                        if (totalGoals > metrics.highestScoring.total) {
+                                            metrics.highestScoring = { total: totalGoals, teamA: teamName, teamB: matchThisRound.opponent, scoreA: matchThisRound.this_team_score, scoreB: matchThisRound.opposing_team_score, round: matchThisRound.round };
+                                        }
+                                    }
+                                } else if (!matchThisRound) {
+                                     teamStreaks[teamName].current = 0; // Streak breaks on Bye
+                                }
+                            });
+
+                            parsedTeams.forEach(t => {
+                                if (!teamsPlayingThisRound.has(t.name)) currentHistoryState[t.name].b++;
+                            });
+
+                            const roundTable = parsedTeams.map(t => ({ name: t.name, ...currentHistoryState[t.name] }));
+                            roundTable.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.f - a.f);
+                            roundTable.forEach((t, i) => t.rank = i + 1);
+                            generatedHistory.push({ round: r, table: roundTable });
+                        }
+
+                        // Determine overall longest streak
+                        let bestStreakTeam = '';
+                        let maxStreak = 0;
+                        Object.entries(teamStreaks).forEach(([t, s]) => {
+                            if (s.max > maxStreak) { maxStreak = s.max; bestStreakTeam = t; }
+                        });
+                        metrics.longestStreak = { streak: maxStreak, team: bestStreakTeam };
+
+                        setHistoryData(generatedHistory);
+                        setHistoryMetrics(metrics);
+                        setScrubberRound(generatedHistory.length > 0 ? generatedHistory[generatedHistory.length - 1].round : 1);
+
+
+                        // --- 3. Infer current round ---
+                        const maxRounds = parsedTeams.reduce((max, team) => Math.max(max, team.p + team.b), 0);
+                        const nextRound = maxRounds + 1;
+                        setCurrentRound(nextRound);
+
+                        // --- 4. Process Schedule (Predictions) ---
+                        let maxScheduleRound = 0;
+                        let newPredictions = [];
+                        const processedMatches = new Set();
+                        
+                        // Find max total round limit in JSON
+                        Object.values(json.team_results).forEach(matches => {
+                            matches.forEach(m => {
+                                const rNum = parseInt(m.round.replace(/[^0-9]/g, ''), 10);
+                                if (rNum && rNum > maxScheduleRound) maxScheduleRound = rNum;
+                            });
+                        });
+                        
+                        if (maxScheduleRound > totalRounds) {
+                            setTotalRounds(maxScheduleRound);
+                        } else if (maxScheduleRound > 0) {
+                            setTotalRounds(Math.max(totalRounds, maxScheduleRound));
+                        }
+
+                        // Generate Predictions for unplayed rounds
+                        for (let r = nextRound; r <= maxScheduleRound; r++) {
+                            const teamsPlayingThisRound = new Set();
+
+                            Object.entries(json.team_results).forEach(([teamName, matches]) => {
+                                const matchThisRound = matches.find(m => parseInt(m.round.replace(/[^0-9]/g, ''), 10) === r);
+                                
+                                if (matchThisRound && matchThisRound.result === null) {
+                                    teamsPlayingThisRound.add(teamName);
+                                    const opponent = matchThisRound.opponent;
+                                    teamsPlayingThisRound.add(opponent);
+                                    
+                                    // Make match string alphabetical to prevent duplicates regardless of Home/Away parsing 
+                                    const teams = [teamName, opponent].sort();
+                                    const matchKey = `R${r}-${teams[0]}-${teams[1]}`;
+                                    
+                                    if (!processedMatches.has(matchKey)) {
+                                        processedMatches.add(matchKey);
+                                        newPredictions.push({
+                                            id: Date.now() + Math.random() + processedMatches.size,
+                                            round: r,
+                                            teamA: teamName,
+                                            teamB: opponent,
+                                            scoreA: 0,
+                                            scoreB: 0,
+                                            isBye: false,
+                                            time: matchThisRound.time || ''
+                                        });
+                                    }
+                                }
+                            });
+
+                            // Assign BYEs if a team was not scheduled to play
+                            parsedTeams.forEach(team => {
+                                if (!teamsPlayingThisRound.has(team.name)) {
+                                    newPredictions.push({
+                                        id: Date.now() + Math.random() + processedMatches.size + 1000,
+                                        round: r,
+                                        teamA: team.name,
+                                        teamB: '',
+                                        scoreA: 0,
+                                        scoreB: 0,
+                                        isBye: true,
+                                        time: ''
+                                    });
+                                }
+                            });
+                        }
+
+                        setPredictions(newPredictions);
+                        setActiveTab('history'); // Jump to history after rich import
+
+                    } catch (err) {
+                        console.error(err);
+                        alert('Error parsing JSON file. Please ensure it is valid.');
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            // Parse Table from Clipboard text (Manual Mode)
             const handleParse = () => {
                 const lines = rawText.trim().split('\n');
                 const parsedTeams = [];
@@ -427,16 +649,12 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                 }
 
                 if(parsedTeams.length > 0) {
-                    // Infer Current Round based on max games played + byes
                     const maxRounds = parsedTeams.reduce((max, team) => Math.max(max, team.p + team.b), 0);
                     const nextRound = maxRounds + 1;
                     
-                    // Filter predictions to ignore rounds that have already passed
                     newPredictions = newPredictions.filter(p => p.round >= nextRound);
-                    
                     setCurrentRound(nextRound);
                     
-                    // Update total rounds based on the remaining valid schedule
                     const validScheduleRounds = newPredictions.map(p => p.round);
                     if (validScheduleRounds.length > 0) {
                         const finalMaxScheduleRound = Math.max(...validScheduleRounds);
@@ -445,6 +663,7 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                         }
                     }
                     
+                    setHistoryData([]); 
                     setActiveTab('predict');
                 }
                 
@@ -560,6 +779,47 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
             const activePredictionRounds = [...new Set(predictions.map(p => p.round))];
             const maxVisibleRound = Math.max(totalRounds, ...activePredictionRounds);
 
+            // History Chart Parameters
+            const getChartCoordinates = () => {
+                if (!historyData.length || !baseTable.length) return { paths: [], points: [] };
+                
+                const width = 1000;
+                const height = 400;
+                const padX = 40;
+                const padY = 30;
+                
+                const numRounds = historyData.length;
+                const numTeams = baseTable.length;
+                
+                const getX = (roundIdx) => padX + (roundIdx * (width - 2 * padX) / Math.max(1, numRounds - 1));
+                const getY = (rank) => padY + ((rank - 1) * (height - 2 * padY) / Math.max(1, numTeams - 1));
+
+                const teamPaths = {};
+                const teamPoints = {};
+
+                baseTable.forEach((team, i) => {
+                    teamPaths[team.name] = [];
+                    teamPoints[team.name] = [];
+                });
+
+                historyData.forEach((h, roundIdx) => {
+                    const x = getX(roundIdx);
+                    h.table.forEach(teamStats => {
+                        const y = getY(teamStats.rank);
+                        teamPaths[teamStats.name].push(`${roundIdx === 0 ? 'M' : 'L'} ${x} ${y}`);
+                        teamPoints[teamStats.name].push({ x, y, rank: teamStats.rank, round: h.round });
+                    });
+                });
+
+                return { 
+                    paths: Object.entries(teamPaths).map(([name, pathData]) => ({ name, d: pathData.join(' ') })),
+                    points: teamPoints,
+                    width, height, padX, padY, numRounds
+                };
+            };
+
+            const chartData = useMemo(() => getChartCoordinates(), [historyData, baseTable]);
+
             return (
                 <div className="min-h-screen bg-gray-50 pb-20">
                     {/* Header */}
@@ -582,6 +842,14 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                                 >
                                     Data Setup
                                 </button>
+                                {historyData.length > 0 && (
+                                    <button 
+                                        onClick={() => setActiveTab('history')}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
+                                    >
+                                        <IconChart /> Progress
+                                    </button>
+                                )}
                                 <button 
                                     onClick={() => baseTable.length > 0 && setActiveTab('predict')}
                                     className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${baseTable.length === 0 ? 'opacity-50 cursor-not-allowed text-gray-400' : activeTab === 'predict' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
@@ -594,73 +862,273 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
 
                     <main className="w-[96%] max-w-[1800px] mx-auto px-4 mt-6">
                         {activeTab === 'import' && (
-                            <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
-                                {/* Paste Area */}
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-lg font-bold text-gray-800 flex items-center"><IconClipboard /> 1. Import Data</h2>
+                            <div className="max-w-6xl mx-auto grid md:grid-cols-12 gap-6">
+                                {/* Import Options Area */}
+                                <div className="md:col-span-7 flex flex-col gap-6">
+                                    
+                                    {/* Option 1: JSON Upload */}
+                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                                        <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center"><IconUpload /> Option 1: Import via JSON File</h2>
+                                        <p className="text-sm text-gray-500 mb-4">Upload a structured JSON file to automatically populate the standings and upcoming schedule.</p>
+                                        <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors relative cursor-pointer group">
+                                            <input type="file" accept=".json" onChange={handleJSONUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                            <div className="text-gray-400 group-hover:text-blue-500 transition-colors mb-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                                            </div>
+                                            <span className="text-sm font-semibold text-gray-600 text-center">Click to browse or drag JSON file here</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Option 2: Manual Paste */}
+                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="text-lg font-bold text-gray-800 flex items-center"><IconClipboard /> Option 2: Manual Data Entry</h2>
+                                            <button 
+                                                onClick={() => { setRawText(DEFAULT_LEAGUE_TABLE); setRawSchedule(DEFAULT_SCHEDULE); }}
+                                                className="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-md transition-colors"
+                                            >
+                                                Use Default Data
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="mb-5">
+                                            <label className="block text-sm text-gray-700 font-bold mb-2">Step 1: Current League Table (Required)</label>
+                                            <textarea 
+                                                className="w-full h-40 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-xs whitespace-pre bg-gray-50 text-gray-700 resize-none"
+                                                placeholder="e.g.&#10;1  FC Tigers    10 8 1 1 0  45 20  25  25&#10;2  Blue Lions   10 7 2 1 0  30 15  15  23&#10;..."
+                                                value={rawText}
+                                                onChange={(e) => setRawText(e.target.value)}
+                                            ></textarea>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm text-gray-700 font-bold mb-2">Step 2: Upcoming Schedule (Optional)</label>
+                                            <textarea 
+                                                className="w-full h-40 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-xs whitespace-pre bg-gray-50 text-gray-700 resize-none"
+                                                placeholder="e.g.&#10;Round 20&#10;RB Football Club have a BYE.&#10;Wed 22 Apr 2026 6:30PM Guinea Pig Champions Wednesday Knights..."
+                                                value={rawSchedule}
+                                                onChange={(e) => setRawSchedule(e.target.value)}
+                                            ></textarea>
+                                        </div>
+
                                         <button 
-                                            onClick={() => { setRawText(DEFAULT_LEAGUE_TABLE); setRawSchedule(DEFAULT_SCHEDULE); }}
-                                            className="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-md transition-colors"
+                                            onClick={handleParse}
+                                            className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md transition-transform active:scale-[0.98]"
                                         >
-                                            Use Default Data
+                                            Import Data & Generate Matchups
                                         </button>
                                     </div>
-                                    
-                                    <div className="mb-5">
-                                        <label className="block text-sm text-gray-700 font-bold mb-2">Step 1: Current League Table (Required)</label>
-                                        <textarea 
-                                            className="w-full h-40 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-xs whitespace-pre bg-gray-50 text-gray-700 resize-none"
-                                            placeholder="e.g.&#10;1  FC Tigers    10 8 1 1 0  45 20  25  25&#10;2  Blue Lions   10 7 2 1 0  30 15  15  23&#10;..."
-                                            value={rawText}
-                                            onChange={(e) => setRawText(e.target.value)}
-                                        ></textarea>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm text-gray-700 font-bold mb-2">Step 2: Upcoming Schedule (Optional)</label>
-                                        <textarea 
-                                            className="w-full h-40 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-xs whitespace-pre bg-gray-50 text-gray-700 resize-none"
-                                            placeholder="e.g.&#10;Round 20&#10;RB Football Club have a BYE.&#10;Wed 22 Apr 2026 6:30PM Guinea Pig Champions Wednesday Knights..."
-                                            value={rawSchedule}
-                                            onChange={(e) => setRawSchedule(e.target.value)}
-                                        ></textarea>
-                                    </div>
-
-                                    <button 
-                                        onClick={handleParse}
-                                        className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md transition-transform active:scale-[0.98]"
-                                    >
-                                        Import Data & Generate Matchups
-                                    </button>
                                 </div>
 
                                 {/* Current Status Area */}
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                                    <h2 className="text-lg font-bold text-gray-800 mb-6">2. Competition Context</h2>
-                                    <div className="space-y-8">
-                                        <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                            <div>
-                                                <h3 className="font-semibold text-gray-800">Current Round</h3>
-                                                <p className="text-sm text-gray-500">Auto-calculated on import.</p>
+                                <div className="md:col-span-5">
+                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 sticky top-[6.5rem]">
+                                        <h2 className="text-lg font-bold text-gray-800 mb-6">Competition Context</h2>
+                                        <div className="space-y-6">
+                                            <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                                <div>
+                                                    <h3 className="font-semibold text-gray-800">Current Round</h3>
+                                                    <p className="text-sm text-gray-500">Auto-calculated.</p>
+                                                </div>
+                                                <Counter value={currentRound} onChange={setCurrentRound} min={1} max={50} />
                                             </div>
-                                            <Counter value={currentRound} onChange={setCurrentRound} min={1} max={50} />
+                                            <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                                <div>
+                                                    <h3 className="font-semibold text-gray-800">Total Rounds</h3>
+                                                    <p className="text-sm text-gray-500">Total games in the season.</p>
+                                                </div>
+                                                <Counter value={totalRounds} onChange={setTotalRounds} min={1} max={50} />
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                            <div>
-                                                <h3 className="font-semibold text-gray-800">Total Rounds</h3>
-                                                <p className="text-sm text-gray-500">Total games in the season.</p>
+
+                                        {baseTable.length > 0 && (
+                                            <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-xl">
+                                                <p className="text-green-800 font-medium flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                                    Successfully imported {baseTable.length} teams.
+                                                </p>
+                                                {historyData.length > 0 ? (
+                                                    <button onClick={() => setActiveTab('history')} className="mt-2 text-green-700 font-bold text-sm block text-center w-full bg-green-100 hover:bg-green-200 py-2 rounded-lg transition-colors">View Season Progress &rarr;</button>
+                                                ) : (
+                                                    <button onClick={() => setActiveTab('predict')} className="mt-2 text-green-700 font-bold text-sm block text-center w-full bg-green-100 hover:bg-green-200 py-2 rounded-lg transition-colors">Go to Predictions &rarr;</button>
+                                                )}
                                             </div>
-                                            <Counter value={totalRounds} onChange={setTotalRounds} min={1} max={50} />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'history' && historyData.length > 0 && (
+                            <div className="max-w-6xl mx-auto flex flex-col gap-6">
+                                {/* Highlights Cards */}
+                                <div className="grid md:grid-cols-3 gap-6">
+                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                                        <div className="flex items-center gap-2 mb-2 text-gray-500"><IconFlame /> <h3 className="font-bold text-sm uppercase tracking-widest">The Invincibles</h3></div>
+                                        <div>
+                                            <p className="text-2xl font-extrabold text-gray-900">{historyMetrics.longestStreak.team}</p>
+                                            <p className="text-orange-600 font-semibold">{historyMetrics.longestStreak.streak} Consecutive Wins</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                                        <div className="flex items-center gap-2 mb-2 text-gray-500"><IconGoal /> <h3 className="font-bold text-sm uppercase tracking-widest">Highest Scoring</h3></div>
+                                        <div>
+                                            <p className="text-xl font-extrabold text-gray-900">{historyMetrics.highestScoring.teamA} <span className="text-gray-400 font-normal">vs</span> {historyMetrics.highestScoring.teamB}</p>
+                                            <p className="text-blue-600 font-semibold">{historyMetrics.highestScoring.total} Total Goals ({historyMetrics.highestScoring.scoreA} - {historyMetrics.highestScoring.scoreB})</p>
+                                            <p className="text-xs text-gray-400 mt-1">{historyMetrics.highestScoring.round}</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                                        <div className="flex items-center gap-2 mb-2 text-gray-500"><IconStar /> <h3 className="font-bold text-sm uppercase tracking-widest">Biggest Blowout</h3></div>
+                                        <div>
+                                            <p className="text-xl font-extrabold text-gray-900">{historyMetrics.biggestWin.scoreA > historyMetrics.biggestWin.scoreB ? historyMetrics.biggestWin.teamA : historyMetrics.biggestWin.teamB}</p>
+                                            <p className="text-yellow-600 font-semibold">Won by {historyMetrics.biggestWin.diff} Goals ({historyMetrics.biggestWin.scoreA} - {historyMetrics.biggestWin.scoreB})</p>
+                                            <p className="text-xs text-gray-400 mt-1">vs {historyMetrics.biggestWin.scoreA > historyMetrics.biggestWin.scoreB ? historyMetrics.biggestWin.teamB : historyMetrics.biggestWin.teamA} in {historyMetrics.biggestWin.round}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Graph Section */}
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h2 className="text-lg font-bold text-gray-900">Season Rank Trajectory</h2>
+                                        <div className="flex flex-wrap gap-2 justify-end max-w-2xl">
+                                            {baseTable.map((t, i) => (
+                                                <div 
+                                                    key={t.name} 
+                                                    onMouseEnter={() => setHighlightedTeam(t.name)}
+                                                    onMouseLeave={() => setHighlightedTeam(null)}
+                                                    className={`text-[10px] font-bold px-2 py-1 rounded cursor-pointer transition-all ${highlightedTeam === t.name || !highlightedTeam ? 'opacity-100 scale-105' : 'opacity-30'}`}
+                                                    style={{ backgroundColor: `${TEAM_COLORS[i % TEAM_COLORS.length]}20`, color: TEAM_COLORS[i % TEAM_COLORS.length] }}
+                                                >
+                                                    {t.name}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="w-full overflow-x-auto hide-scrollbar border border-gray-100 rounded-xl bg-gray-50/30">
+                                        <svg viewBox={`0 0 ${chartData.width} ${chartData.height}`} className="w-full h-auto min-w-[800px] bg-transparent">
+                                            {/* Y-Axis (Ranks) */}
+                                            {Array.from({ length: baseTable.length }).map((_, i) => {
+                                                const y = chartData.padY + (i * (chartData.height - 2 * chartData.padY) / Math.max(1, baseTable.length - 1));
+                                                return (
+                                                    <g key={`y-${i}`}>
+                                                        <line x1={chartData.padX} y1={y} x2={chartData.width - chartData.padX} y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4 4" />
+                                                        <text x={chartData.padX - 10} y={y + 4} textAnchor="end" className="text-[10px] fill-gray-400 font-mono font-bold">{i + 1}</text>
+                                                    </g>
+                                                );
+                                            })}
+                                            
+                                            {/* X-Axis (Rounds) */}
+                                            {historyData.map((h, i) => {
+                                                const x = chartData.padX + (i * (chartData.width - 2 * chartData.padX) / Math.max(1, chartData.numRounds - 1));
+                                                return (
+                                                    <text key={`x-${i}`} x={x} y={chartData.height - 5} textAnchor="middle" className="text-[10px] fill-gray-400 font-bold uppercase tracking-wider">R{h.round}</text>
+                                                );
+                                            })}
+
+                                            {/* Paths */}
+                                            {chartData.paths.map((path, i) => {
+                                                const isHighlighted = highlightedTeam === path.name;
+                                                const isFaded = highlightedTeam && !isHighlighted;
+                                                return (
+                                                    <path 
+                                                        key={path.name} 
+                                                        d={path.d} 
+                                                        fill="none" 
+                                                        stroke={TEAM_COLORS[i % TEAM_COLORS.length]} 
+                                                        strokeWidth={isHighlighted ? "4" : "2"} 
+                                                        className={`transition-all duration-300 ${isFaded ? 'opacity-10' : isHighlighted ? 'opacity-100 drop-shadow-md' : 'opacity-70'}`}
+                                                    />
+                                                );
+                                            })}
+                                            
+                                            {/* Points */}
+                                            {Object.entries(chartData.points).map(([teamName, points], teamIdx) => {
+                                                const isHighlighted = highlightedTeam === teamName;
+                                                const isFaded = highlightedTeam && !isHighlighted;
+                                                return points.map((p, i) => (
+                                                    <circle 
+                                                        key={`${teamName}-${i}`} 
+                                                        cx={p.x} cy={p.y} r={isHighlighted ? "4" : "0"} 
+                                                        fill={TEAM_COLORS[teamIdx % TEAM_COLORS.length]} 
+                                                        className={`transition-all duration-300 ${isFaded ? 'opacity-0' : 'opacity-100'}`}
+                                                    />
+                                                ));
+                                            })}
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                {/* Dynamic Scrubber Table */}
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
+                                    <div className="flex justify-between items-end mb-6">
+                                        <div>
+                                            <h2 className="text-lg font-bold text-gray-900">Time Machine Table</h2>
+                                            <p className="text-sm text-gray-500">Drag the slider to view past standings.</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-3xl font-extrabold text-blue-600 block">Round {scrubberRound}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                        <input 
+                                            type="range" 
+                                            min={historyData[0]?.round || 1} 
+                                            max={historyData[historyData.length - 1]?.round || 1} 
+                                            value={scrubberRound} 
+                                            onChange={(e) => setScrubberRound(parseInt(e.target.value, 10))}
+                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                        />
+                                        <div className="flex justify-between text-xs font-bold text-gray-400 mt-2 px-1">
+                                            <span>R{historyData[0]?.round || 1}</span>
+                                            <span>R{historyData[historyData.length - 1]?.round || 1}</span>
                                         </div>
                                     </div>
 
-                                    {baseTable.length > 0 && (
-                                        <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-xl">
-                                            <p className="text-green-800 font-medium">✅ Successfully imported {baseTable.length} teams.</p>
-                                            <button onClick={() => setActiveTab('predict')} className="mt-2 text-green-700 font-bold underline text-sm hover:text-green-900">Go to Predictions &rarr;</button>
-                                        </div>
-                                    )}
+                                    <div className="overflow-x-auto rounded-xl border border-gray-200">
+                                        <table className="w-full text-sm text-left">
+                                            <thead className="text-xs text-gray-500 uppercase bg-gray-100 border-b border-gray-200">
+                                                <tr>
+                                                    <th className="px-3 py-3 text-center w-8">#</th>
+                                                    <th className="px-4 py-3 font-bold text-gray-700">Team</th>
+                                                    <th className="px-2 py-3 text-center" title="Played">P</th>
+                                                    <th className="px-2 py-3 text-center text-green-600" title="Wins">W</th>
+                                                    <th className="px-2 py-3 text-center text-gray-400" title="Draws">D</th>
+                                                    <th className="px-2 py-3 text-center text-red-500" title="Losses">L</th>
+                                                    <th className="px-2 py-3 text-center" title="Byes">B</th>
+                                                    <th className="px-2 py-3 text-center text-gray-400" title="Goals For">F</th>
+                                                    <th className="px-2 py-3 text-center text-gray-400" title="Goals Against">A</th>
+                                                    <th className="px-2 py-3 text-center font-semibold" title="Goal Difference">GD</th>
+                                                    <th className="px-3 py-3 text-center font-bold text-blue-600 text-base">Pts</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {historyData.find(h => h.round === scrubberRound)?.table.map((team, idx) => (
+                                                    <tr key={team.name} className={`hover:bg-blue-50/50 transition-colors ${idx < 4 ? 'bg-green-50/10' : ''}`}>
+                                                        <td className="px-3 py-2 text-center font-bold text-gray-500">{team.rank}</td>
+                                                        <td className="px-4 py-2 font-bold text-gray-900 whitespace-nowrap">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: TEAM_COLORS[baseTable.findIndex(t => t.name === team.name) % TEAM_COLORS.length] }}></span>
+                                                                {team.name}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-2 py-2 text-center font-medium text-gray-600">{team.p}</td>
+                                                        <td className="px-2 py-2 text-center font-medium text-green-600">{team.w}</td>
+                                                        <td className="px-2 py-2 text-center font-medium text-gray-400">{team.d}</td>
+                                                        <td className="px-2 py-2 text-center font-medium text-red-500">{team.l}</td>
+                                                        <td className="px-2 py-2 text-center font-medium text-gray-500">{team.b}</td>
+                                                        <td className="px-2 py-2 text-center text-gray-400">{team.f}</td>
+                                                        <td className="px-2 py-2 text-center text-gray-400">{team.a}</td>
+                                                        <td className="px-2 py-2 text-center font-semibold text-gray-700">{team.gd > 0 ? `+${team.gd}` : team.gd}</td>
+                                                        <td className="px-3 py-2 text-center font-extrabold text-blue-600 text-base">{team.pts}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         )}
