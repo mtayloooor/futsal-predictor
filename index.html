@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futsal Table Predictor</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body { background-color: #f3f4f6; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- ICONS ---
+        const IconUp = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500"><path d="m18 15-6-6-6 6"/></svg>;
+        const IconDown = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="m6 9 6 6 6-6"/></svg>;
+        const IconDash = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300"><path d="M5 12h14"/></svg>;
+        const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400 hover:text-red-600"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>;
+        const IconTrophy = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
+        const IconClipboard = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>;
+
+        // --- COMPONENTS ---
+        
+        // Custom Number Input built with Buttons
+        const Counter = ({ value, onChange, min = 0, max = 99, label }) => (
+            <div className="flex flex-col items-center">
+                {label && <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">{label}</span>}
+                <div className="flex items-center bg-gray-100 rounded-lg p-1 border border-gray-200 shadow-inner">
+                    <button onClick={() => onChange(Math.max(min, value - 1))} className="w-8 h-8 flex items-center justify-center rounded-md bg-white shadow hover:bg-gray-50 active:bg-gray-200 text-gray-700 font-bold transition-colors">
+                        -
+                    </button>
+                    <span className="w-10 text-center font-bold text-gray-800 tabular-nums">{value}</span>
+                    <button onClick={() => onChange(Math.min(max, value + 1))} className="w-8 h-8 flex items-center justify-center rounded-md bg-white shadow hover:bg-gray-50 active:bg-gray-200 text-gray-700 font-bold transition-colors">
+                        +
+                    </button>
+                </div>
+            </div>
+        );
+
+        const App = () => {
+            // State
+            const [rawText, setRawText] = useState('');
+            const [rawSchedule, setRawSchedule] = useState('');
+            const [baseTable, setBaseTable] = useState([]); // [{name, p, w, d, l, b, f, a, gd, pts, baseRank}]
+            const [currentRound, setCurrentRound] = useState(1);
+            const [totalRounds, setTotalRounds] = useState(14);
+            const [predictions, setPredictions] = useState([]); // [{id, round, teamA, teamB, scoreA, scoreB, isBye}]
+            const [activeTab, setActiveTab] = useState('import'); // 'import', 'predict'
+
+            // Parse Table from Clipboard text
+            const handleParse = () => {
+                const lines = rawText.trim().split('\n');
+                const parsedTeams = [];
+                
+                lines.forEach(line => {
+                    let tokens = line.trim().split(/\s+/);
+                    if (tokens.length < 8) return; // Too short to be a stats row
+
+                    // Extract all numbers from the end
+                    const stats = [];
+                    while(tokens.length > 0) {
+                       const last = tokens[tokens.length - 1];
+                       if (/^-?\d+$/.test(last) || last === '-' || last.startsWith('+')) {
+                           stats.unshift(tokens.pop().replace('+', ''));
+                       } else {
+                           break;
+                       }
+                    }
+                    
+                    // If we grabbed too many (e.g. team name has numbers), push them back to team name
+                    while (stats.length > 9) {
+                        tokens.push(stats.shift());
+                    }
+                    
+                    if (stats.length < 8) return; // Need at least P W D L F A GD Pts
+
+                    let p, w, d, l, b, f, a, gd, pts;
+                    if (stats.length === 9) {
+                        [p, w, d, l, b, f, a, gd, pts] = stats.map(val => val === '-' ? 0 : parseInt(val, 10));
+                    } else if (stats.length === 8) {
+                        [p, w, d, l, f, a, gd, pts] = stats.map(val => val === '-' ? 0 : parseInt(val, 10));
+                        b = 0; // Byes defaults to 0 if not present
+                    }
+
+                    // Remove initial rank number if exists
+                    if (!isNaN(parseInt(tokens[0])) && tokens.length > 1) {
+                        tokens.shift();
+                    }
+                    
+                    const name = tokens.join(' ').replace(/[^a-zA-Z0-9\s-]/g, '').trim();
+                    if(name) {
+                        parsedTeams.push({ name, p, w, d, l, b, f, a, gd, pts, baseRank: 0 });
+                    }
+                });
+
+                // Assign Base Rank
+                parsedTeams.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.f - a.f);
+                parsedTeams.forEach((t, i) => t.baseRank = i + 1);
+
+                setBaseTable(parsedTeams);
+                
+                // --- PARSE SCHEDULE ---
+                let newPredictions = [];
+                let maxScheduleRound = 0;
+                let minScheduleRound = Infinity;
+                
+                if (parsedTeams.length > 0 && rawSchedule.trim()) {
+                    const scheduleLines = rawSchedule.trim().split('\n');
+                    // Sort teams by length descending to match longest possible names first
+                    const knownTeams = parsedTeams.map(t => t.name).sort((a,b) => b.length - a.length);
+                    let currentParseRound = null;
+
+                    scheduleLines.forEach(line => {
+                        const roundMatch = line.match(/Round\s+(\d+)/i);
+                        if (roundMatch) {
+                            currentParseRound = parseInt(roundMatch[1], 10);
+                            maxScheduleRound = Math.max(maxScheduleRound, currentParseRound);
+                            minScheduleRound = Math.min(minScheduleRound, currentParseRound);
+                            return;
+                        }
+
+                        if (!currentParseRound) return;
+
+                        if (line.includes('have a BYE')) {
+                            // Strip punctuation to match the normalized table names
+                            const normalizedLine = line.replace(/[^a-zA-Z0-9\s-]/g, '');
+                            const byeTeam = knownTeams.find(t => normalizedLine.includes(t));
+                            if (byeTeam) {
+                                newPredictions.push({
+                                    id: Date.now() + Math.random(),
+                                    round: currentParseRound,
+                                    teamA: byeTeam,
+                                    teamB: '',
+                                    scoreA: 0,
+                                    scoreB: 0,
+                                    isBye: true,
+                                    time: ''
+                                });
+                            }
+                            return;
+                        }
+
+                        const timeMatch = line.match(/\d{1,2}:\d{2}[AP]M/i);
+                        if (timeMatch) {
+                            const time = timeMatch[0];
+                            // Remove time, then strip punctuation to match normalized table names
+                            let remainingLine = line.replace(time, '').replace(/[^a-zA-Z0-9\s-]/g, '');
+                            let foundTeams = [];
+
+                            for (const team of knownTeams) {
+                                if (remainingLine.includes(team)) {
+                                    foundTeams.push({ name: team, index: remainingLine.indexOf(team) });
+                                    // Mask the team so we don't match parts of it again
+                                    remainingLine = remainingLine.split(team).join('###'); 
+                                }
+                            }
+                            
+                            // Sort by where they appeared in the string (Home vs Away)
+                            foundTeams.sort((a, b) => a.index - b.index);
+
+                            if (foundTeams.length >= 2) {
+                                newPredictions.push({
+                                    id: Date.now() + Math.random(),
+                                    round: currentParseRound,
+                                    teamA: foundTeams[0].name,
+                                    teamB: foundTeams[1].name,
+                                    scoreA: 0,
+                                    scoreB: 0,
+                                    isBye: false,
+                                    time: time
+                                });
+                            }
+                        }
+                    });
+                }
+                
+                setPredictions(newPredictions);
+
+                if(parsedTeams.length > 0) {
+                    // Infer Current Round based on max games played + byes
+                    const maxRounds = parsedTeams.reduce((max, team) => Math.max(max, team.p + team.b), 0);
+                    let nextRound = maxRounds + 1;
+                    
+                    // If schedule provides a more specific upcoming round, sync to that
+                    if (minScheduleRound !== Infinity && minScheduleRound > 0) {
+                        nextRound = minScheduleRound;
+                    }
+                    
+                    setCurrentRound(nextRound);
+                    if (maxScheduleRound > totalRounds) {
+                        setTotalRounds(maxScheduleRound);
+                    }
+                    setActiveTab('predict');
+                }
+            };
+
+            // Calculate Predicted Table dynamically
+            const predictedTable = useMemo(() => {
+                if (baseTable.length === 0) return [];
+                
+                // Deep copy
+                const table = JSON.parse(JSON.stringify(baseTable));
+                const teamMap = {};
+                table.forEach(t => teamMap[t.name] = t);
+
+                predictions.forEach(match => {
+                    if (match.isBye) {
+                        if (teamMap[match.teamA]) teamMap[match.teamA].b++;
+                        return;
+                    }
+
+                    const tA = teamMap[match.teamA];
+                    const tB = teamMap[match.teamB];
+
+                    if (tA && tB && match.teamA !== match.teamB) {
+                        tA.p++; tB.p++;
+                        tA.f += match.scoreA; tA.a += match.scoreB;
+                        tB.f += match.scoreB; tB.a += match.scoreA;
+                        tA.gd = tA.f - tA.a; tB.gd = tB.f - tB.a;
+
+                        if (match.scoreA > match.scoreB) {
+                            tA.w++; tB.l++; tA.pts += 3;
+                        } else if (match.scoreA < match.scoreB) {
+                            tB.w++; tA.l++; tB.pts += 3;
+                        } else {
+                            tA.d++; tB.d++; tA.pts += 1; tB.pts += 1;
+                        }
+                    }
+                });
+
+                // Re-sort based on predictions
+                table.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.f - a.f);
+                table.forEach((t, i) => t.predictedRank = i + 1);
+                
+                return table;
+            }, [baseTable, predictions]);
+
+            // Get available teams for a specific match dropdown
+            const getAvailableTeams = (roundNum, matchId, currentTeam) => {
+                const usedTeams = new Set();
+                predictions.forEach(p => {
+                    if (p.round === roundNum && p.id !== matchId) {
+                        if (p.teamA) usedTeams.add(p.teamA);
+                        if (!p.isBye && p.teamB) usedTeams.add(p.teamB);
+                    }
+                });
+                return baseTable.map(t => t.name).filter(name => !usedTeams.has(name) || name === currentTeam);
+            };
+
+            // Fixture Management
+            const addMatch = (roundNum) => {
+                const usedTeams = new Set();
+                predictions.filter(p => p.round === roundNum).forEach(p => {
+                    if (p.teamA) usedTeams.add(p.teamA);
+                    if (!p.isBye && p.teamB) usedTeams.add(p.teamB);
+                });
+                const availableTeams = baseTable.map(t=>t.name).filter(t => !usedTeams.has(t));
+
+                setPredictions([...predictions, {
+                    id: Date.now() + Math.random(),
+                    round: roundNum,
+                    teamA: availableTeams[0] || '',
+                    teamB: availableTeams[1] || '',
+                    scoreA: 0,
+                    scoreB: 0,
+                    isBye: false,
+                    time: ''
+                }]);
+            };
+
+            const addBye = (roundNum) => {
+                const usedTeams = new Set();
+                predictions.filter(p => p.round === roundNum).forEach(p => {
+                    if (p.teamA) usedTeams.add(p.teamA);
+                    if (!p.isBye && p.teamB) usedTeams.add(p.teamB);
+                });
+                const availableTeams = baseTable.map(t=>t.name).filter(t => !usedTeams.has(t));
+
+                setPredictions([...predictions, {
+                    id: Date.now() + Math.random(),
+                    round: roundNum,
+                    teamA: availableTeams[0] || '',
+                    teamB: '',
+                    scoreA: 0,
+                    scoreB: 0,
+                    isBye: true,
+                    time: ''
+                }]);
+            };
+
+            const updateMatch = (id, field, value) => {
+                setPredictions(predictions.map(p => p.id === id ? { ...p, [field]: value } : p));
+            };
+
+            const removeMatch = (id) => {
+                setPredictions(predictions.filter(p => p.id !== id));
+            };
+
+            // Helpers to get arrows
+            const getMovementIcon = (base, predicted) => {
+                if (predicted < base) return <IconUp />;
+                if (predicted > base) return <IconDown />;
+                return <IconDash />;
+            };
+
+            // Get unique rounds from predictions to ensure we show them even if outside current bounds
+            const activePredictionRounds = [...new Set(predictions.map(p => p.round))];
+            const maxVisibleRound = Math.max(totalRounds, ...activePredictionRounds);
+
+            return (
+                <div className="min-h-screen bg-gray-50 pb-20">
+                    {/* Header */}
+                    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
+                        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                                <div className="bg-blue-600 p-2 rounded-lg text-white">
+                                    <IconTrophy />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl font-bold text-gray-900 leading-tight">Futsal Predictor</h1>
+                                    <p className="text-xs text-gray-500 font-medium">Live Table Calculator</p>
+                                </div>
+                            </div>
+                            
+                            <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+                                <button 
+                                    onClick={() => setActiveTab('import')}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${activeTab === 'import' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
+                                >
+                                    Data Setup
+                                </button>
+                                <button 
+                                    onClick={() => baseTable.length > 0 && setActiveTab('predict')}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${baseTable.length === 0 ? 'opacity-50 cursor-not-allowed text-gray-400' : activeTab === 'predict' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
+                                >
+                                    Predictions
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-6xl mx-auto px-4 mt-6">
+                        {activeTab === 'import' && (
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {/* Paste Area */}
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                                    <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center"><IconClipboard /> 1. Import Data</h2>
+                                    
+                                    <div className="mb-5">
+                                        <label className="block text-sm text-gray-700 font-bold mb-2">Step 1: Current League Table (Required)</label>
+                                        <textarea 
+                                            className="w-full h-40 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-xs whitespace-pre bg-gray-50 text-gray-700 resize-none"
+                                            placeholder="e.g.&#10;1  FC Tigers    10 8 1 1 0  45 20  25  25&#10;2  Blue Lions   10 7 2 1 0  30 15  15  23&#10;..."
+                                            value={rawText}
+                                            onChange={(e) => setRawText(e.target.value)}
+                                        ></textarea>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm text-gray-700 font-bold mb-2">Step 2: Upcoming Schedule (Optional)</label>
+                                        <textarea 
+                                            className="w-full h-40 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-xs whitespace-pre bg-gray-50 text-gray-700 resize-none"
+                                            placeholder="e.g.&#10;Round 20&#10;RB Football Club have a BYE.&#10;Wed 22 Apr 2026 6:30PM Guinea Pig Champions Wednesday Knights..."
+                                            value={rawSchedule}
+                                            onChange={(e) => setRawSchedule(e.target.value)}
+                                        ></textarea>
+                                    </div>
+
+                                    <button 
+                                        onClick={handleParse}
+                                        className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md transition-transform active:scale-[0.98]"
+                                    >
+                                        Import Data & Generate Matchups
+                                    </button>
+                                </div>
+
+                                {/* Current Status Area */}
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                                    <h2 className="text-lg font-bold text-gray-800 mb-6">2. Competition Context</h2>
+                                    <div className="space-y-8">
+                                        <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                            <div>
+                                                <h3 className="font-semibold text-gray-800">Current Round</h3>
+                                                <p className="text-sm text-gray-500">Auto-calculated on import.</p>
+                                            </div>
+                                            <Counter value={currentRound} onChange={setCurrentRound} min={1} max={50} />
+                                        </div>
+                                        <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                            <div>
+                                                <h3 className="font-semibold text-gray-800">Total Rounds</h3>
+                                                <p className="text-sm text-gray-500">Total games in the season.</p>
+                                            </div>
+                                            <Counter value={totalRounds} onChange={setTotalRounds} min={1} max={50} />
+                                        </div>
+                                    </div>
+
+                                    {baseTable.length > 0 && (
+                                        <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-xl">
+                                            <p className="text-green-800 font-medium">✅ Successfully imported {baseTable.length} teams.</p>
+                                            <button onClick={() => setActiveTab('predict')} className="mt-2 text-green-700 font-bold underline text-sm hover:text-green-900">Go to Predictions &rarr;</button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'predict' && (
+                            <div className="flex flex-col gap-6 items-start w-full">
+                                
+                                {/* TOP ROW: Live Table (Sticky) */}
+                                <div className="w-full sticky top-[4.5rem] z-20">
+                                    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                                        <div className="bg-gray-900 px-5 py-4 flex justify-between items-center">
+                                            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                                Predicted League Table
+                                            </h2>
+                                            <div className="flex items-center gap-2 text-xs font-medium text-gray-300 bg-gray-800 px-3 py-1 rounded-full">
+                                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Live
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="overflow-y-auto max-h-[50vh] hide-scrollbar bg-white">
+                                            <table className="w-full text-sm text-left relative">
+                                                <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-200 sticky top-0 z-10 shadow-sm bg-gray-50">
+                                                    <tr>
+                                                        <th className="px-3 py-3 text-center w-10">Mvmt</th>
+                                                        <th className="px-2 py-3 text-center w-8">#</th>
+                                                        <th className="px-4 py-3 font-bold text-gray-700">Team</th>
+                                                        <th className="px-2 py-3 text-center" title="Played">P</th>
+                                                        <th className="px-2 py-3 text-center text-green-600" title="Wins">W</th>
+                                                        <th className="px-2 py-3 text-center text-gray-400" title="Draws">D</th>
+                                                        <th className="px-2 py-3 text-center text-red-500" title="Losses">L</th>
+                                                        <th className="px-2 py-3 text-center" title="Byes">B</th>
+                                                        <th className="px-2 py-3 text-center text-gray-400" title="Goals For">F</th>
+                                                        <th className="px-2 py-3 text-center text-gray-400" title="Goals Against">A</th>
+                                                        <th className="px-2 py-3 text-center font-semibold" title="Goal Difference">GD</th>
+                                                        <th className="px-3 py-3 text-center font-bold text-blue-600 text-base">Pts</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-100">
+                                                    {predictedTable.map((team, idx) => (
+                                                        <tr key={team.name} className={`hover:bg-blue-50/50 transition-colors ${idx < 4 ? 'bg-green-50/20' : ''}`}>
+                                                            <td className="px-3 py-2 text-center align-middle">
+                                                                <div className="flex justify-center items-center">
+                                                                    {getMovementIcon(team.baseRank, team.predictedRank)}
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-2 py-2 text-center font-bold text-gray-500">{team.predictedRank}</td>
+                                                            <td className="px-4 py-2 font-bold text-gray-900 whitespace-nowrap">{team.name}</td>
+                                                            <td className="px-2 py-2 text-center font-medium text-gray-600">{team.p}</td>
+                                                            <td className="px-2 py-2 text-center font-medium text-green-600">{team.w}</td>
+                                                            <td className="px-2 py-2 text-center font-medium text-gray-400">{team.d}</td>
+                                                            <td className="px-2 py-2 text-center font-medium text-red-500">{team.l}</td>
+                                                            <td className="px-2 py-2 text-center font-medium text-gray-500">{team.b}</td>
+                                                            <td className="px-2 py-2 text-center text-gray-400">{team.f}</td>
+                                                            <td className="px-2 py-2 text-center text-gray-400">{team.a}</td>
+                                                            <td className="px-2 py-2 text-center font-semibold text-gray-700">{team.gd > 0 ? `+${team.gd}` : team.gd}</td>
+                                                            <td className="px-3 py-2 text-center font-extrabold text-blue-600 text-base">{team.pts}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* BOTTOM ROW: Predictions Builder */}
+                                <div className="w-full bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h2 className="text-xl font-bold text-gray-900">Match Predictor</h2>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+                                        {Array.from({ length: maxVisibleRound - currentRound + 1 }, (_, i) => currentRound + i).map(roundNum => {
+                                            const roundMatches = predictions
+                                                .filter(p => p.round === roundNum)
+                                                .sort((a, b) => {
+                                                    if (!a.time && !b.time) return 0;
+                                                    if (!a.time) return 1;
+                                                    if (!b.time) return -1;
+                                                    const parseTime = (t) => {
+                                                        const match = t.match(/(\d+):(\d+)([AP]M)/i);
+                                                        if(!match) return 0;
+                                                        let [_, h, m, ampm] = match;
+                                                        h = parseInt(h);
+                                                        if(ampm.toUpperCase() === 'PM' && h < 12) h += 12;
+                                                        if(ampm.toUpperCase() === 'AM' && h === 12) h = 0;
+                                                        return h * 60 + parseInt(m);
+                                                    };
+                                                    return parseTime(a.time) - parseTime(b.time);
+                                                });
+                                            
+                                            return (
+                                                <div key={roundNum} className="bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                                                    <div className="flex items-center justify-between mb-3 border-b border-gray-200 pb-2">
+                                                        <h3 className="font-bold text-gray-700 bg-white px-3 py-1 rounded-md text-sm border border-gray-200 shadow-sm">Round {roundNum}</h3>
+                                                        <div className="flex gap-2">
+                                                            <button 
+                                                                onClick={() => addBye(roundNum)}
+                                                                className="text-xs font-bold text-gray-600 hover:text-gray-800 bg-gray-200 px-2 py-1 rounded transition-colors"
+                                                            >
+                                                                + Add Bye
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => addMatch(roundNum)}
+                                                                className="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded transition-colors"
+                                                            >
+                                                                + Add Match
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    {roundMatches.length === 0 && (
+                                                        <p className="text-xs text-gray-400 italic text-center py-4 bg-white rounded-lg border border-dashed border-gray-200">No fixtures added.</p>
+                                                    )}
+
+                                                    <div className="space-y-4">
+                                                        {roundMatches.map((match, idx) => (
+                                                            <div key={match.id} className={`p-3 rounded-xl border mt-2 ${match.isBye ? 'bg-gray-50 border-gray-200 border-dashed' : 'bg-white border-gray-200 shadow-sm'} relative group`}>
+                                                                
+                                                                {match.time && (
+                                                                    <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2">
+                                                                        <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-blue-200 whitespace-nowrap shadow-sm">
+                                                                            {match.time}
+                                                                        </span>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Match Card Actions */}
+                                                                <div className="absolute top-2 right-2 flex items-center space-x-2">
+                                                                    <button onClick={() => removeMatch(match.id)} className="p-1 text-gray-300 hover:text-red-500 transition-colors">
+                                                                        <IconTrash />
+                                                                    </button>
+                                                                </div>
+
+                                                                {match.isBye ? (
+                                                                    <div className="pt-4 pb-2">
+                                                                         <select 
+                                                                            value={match.teamA} 
+                                                                            onChange={(e) => updateMatch(match.id, 'teamA', e.target.value)}
+                                                                            className="w-full text-sm font-semibold text-gray-700 bg-gray-100 border-transparent rounded-lg p-2 focus:ring-0 focus:border-transparent outline-none"
+                                                                        >
+                                                                            {getAvailableTeams(roundNum, match.id, match.teamA).map(t => <option key={t} value={t}>{t}</option>)}
+                                                                        </select>
+                                                                        <p className="text-center text-xs font-bold text-gray-400 mt-2 uppercase tracking-widest">Has a BYE</p>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="pt-3 flex flex-col space-y-3">
+                                                                        {/* Home Team Row */}
+                                                                        <div className="flex items-center justify-between gap-2">
+                                                                            <select 
+                                                                                value={match.teamA} 
+                                                                                onChange={(e) => updateMatch(match.id, 'teamA', e.target.value)}
+                                                                                className="flex-1 min-w-0 text-sm font-bold text-gray-800 bg-gray-100 hover:bg-gray-200 border-transparent rounded-lg py-2 px-3 outline-none transition-colors truncate"
+                                                                            >
+                                                                                {getAvailableTeams(roundNum, match.id, match.teamA).map(t => <option key={t} value={t}>{t}</option>)}
+                                                                            </select>
+                                                                            <Counter value={match.scoreA} onChange={(val) => updateMatch(match.id, 'scoreA', val)} />
+                                                                        </div>
+
+                                                                        {/* VS Divider */}
+                                                                        <div className="flex justify-center items-center h-1 relative">
+                                                                            <div className="absolute w-full border-t border-dashed border-gray-200"></div>
+                                                                            <span className="bg-white px-2 text-[10px] font-bold text-gray-400 z-10 uppercase tracking-widest">VS</span>
+                                                                        </div>
+
+                                                                        {/* Away Team Row */}
+                                                                        <div className="flex items-center justify-between gap-2">
+                                                                            <select 
+                                                                                value={match.teamB} 
+                                                                                onChange={(e) => updateMatch(match.id, 'teamB', e.target.value)}
+                                                                                className="flex-1 min-w-0 text-sm font-bold text-gray-800 bg-gray-100 hover:bg-gray-200 border-transparent rounded-lg py-2 px-3 outline-none transition-colors truncate text-right"
+                                                                            >
+                                                                                {getAvailableTeams(roundNum, match.id, match.teamB).map(t => <option key={t} value={t}>{t}</option>)}
+                                                                            </select>
+                                                                            <Counter value={match.scoreB} onChange={(val) => updateMatch(match.id, 'scoreB', val)} />
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                    
+                                    <button 
+                                        onClick={() => setTotalRounds(r => r + 1)}
+                                        className="w-full mt-6 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:text-gray-700 transition-colors"
+                                    >
+                                        Add Round {maxVisibleRound + 1}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
