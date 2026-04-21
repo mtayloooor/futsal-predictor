@@ -265,6 +265,9 @@ Wed 06 May 2026 8:30PM Pub Squash Wednesday Knights
 Wed 06 May 2026 9:10PM RB Football Club Climate Kookaburras F.C.
 Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
 
+
+        const GITHUB_JSON_URL = "https://raw.githubusercontent.com/mtayloooor/futsal-predictor/main/futsal_season_data.json";
+
         // --- ICONS ---
         const IconUp = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500"><path d="m18 15-6-6-6 6"/></svg>;
         const IconDown = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="m6 9 6 6 6-6"/></svg>;
@@ -277,6 +280,7 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
         const IconFlame = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-orange-500"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>;
         const IconGoal = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
         const IconStar = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
+        const IconGithub = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="mr-1"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>;
 
         const TEAM_COLORS = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#64748b', '#14b8a6', '#f43f5e', '#8b5cf6'];
 
@@ -307,12 +311,210 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
             const [totalRounds, setTotalRounds] = useState(14);
             const [predictions, setPredictions] = useState([]); // [{id, round, teamA, teamB, scoreA, scoreB, isBye, time}]
             const [activeTab, setActiveTab] = useState('import'); // 'import', 'history', 'predict'
+            const [isFetchingLatest, setIsFetchingLatest] = useState(false);
             
             // History States
             const [historyData, setHistoryData] = useState([]); // [{ round: 1, table: [...] }, ...]
             const [historyMetrics, setHistoryMetrics] = useState(null);
             const [scrubberRound, setScrubberRound] = useState(1);
             const [highlightedTeam, setHighlightedTeam] = useState(null);
+            const [selectedTeams, setSelectedTeams] = useState([]);
+
+            // Reusable JSON Processing Logic
+            const processParsedJSON = (json) => {
+                if (!json.standings || !json.team_results) {
+                    alert('Invalid JSON format. Expected "standings" and "team_results" keys.');
+                    return;
+                }
+
+                // 1. Parse Standings
+                const parsedTeams = json.standings.map(t => ({
+                    name: t.Team,
+                    p: parseInt(t.Played, 10) || 0,
+                    w: parseInt(t.Wins, 10) || 0,
+                    d: parseInt(t.Draws, 10) || 0,
+                    l: parseInt(t.Losses, 10) || 0,
+                    b: parseInt(t.BYEs, 10) || 0,
+                    f: parseInt(t.For, 10) || 0,
+                    a: parseInt(t.Against, 10) || 0,
+                    gd: parseInt(t['Diff.'], 10) || 0,
+                    pts: parseInt(t.Points, 10) || 0,
+                    baseRank: 0
+                }));
+
+                parsedTeams.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.f - a.f);
+                parsedTeams.forEach((t, i) => t.baseRank = i + 1);
+                setBaseTable(parsedTeams);
+
+                // --- 2. Calculate Deep History & Metrics ---
+                let maxPlayedRound = 0;
+                let metrics = {
+                    biggestWin: { diff: 0, teamA: '', teamB: '', scoreA: 0, scoreB: 0, round: '' },
+                    highestScoring: { total: 0, teamA: '', teamB: '', scoreA: 0, scoreB: 0, round: '' },
+                    longestStreak: { streak: 0, team: '' }
+                };
+                const teamStreaks = {};
+                parsedTeams.forEach(t => teamStreaks[t.name] = { current: 0, max: 0 });
+
+                // Find max played round
+                Object.values(json.team_results).forEach(matches => {
+                    matches.forEach(m => {
+                        if (m.result !== null) {
+                            const rNum = parseInt(m.round.replace(/[^0-9]/g, ''), 10);
+                            if (rNum > maxPlayedRound) maxPlayedRound = rNum;
+                        }
+                    });
+                });
+
+                const currentHistoryState = {};
+                parsedTeams.forEach(t => currentHistoryState[t.name] = { p: 0, w: 0, d: 0, l: 0, b: 0, f: 0, a: 0, gd: 0, pts: 0 });
+                const generatedHistory = [];
+                const uniqueMatchesProcessed = new Set(); // Prevent double counting metrics for Home/Away
+
+                for (let r = 1; r <= maxPlayedRound; r++) {
+                    const teamsPlayingThisRound = new Set();
+                    
+                    Object.entries(json.team_results).forEach(([teamName, matches]) => {
+                        const matchThisRound = matches.find(m => parseInt(m.round.replace(/[^0-9]/g, ''), 10) === r);
+                        
+                        if (matchThisRound && matchThisRound.result !== null) {
+                            teamsPlayingThisRound.add(teamName);
+                            const stats = currentHistoryState[teamName];
+                            stats.p++;
+                            stats.f += matchThisRound.this_team_score;
+                            stats.a += matchThisRound.opposing_team_score;
+                            stats.gd = stats.f - stats.a;
+
+                            if (matchThisRound.result === 'Win') { 
+                                stats.w++; stats.pts += 3; 
+                                teamStreaks[teamName].current++;
+                                if (teamStreaks[teamName].current > teamStreaks[teamName].max) {
+                                    teamStreaks[teamName].max = teamStreaks[teamName].current;
+                                }
+                            } else {
+                                teamStreaks[teamName].current = 0;
+                                if (matchThisRound.result === 'Loss') stats.l++;
+                                if (matchThisRound.result === 'Draw') { stats.d++; stats.pts += 1; }
+                            }
+
+                            // Metrics Check
+                            const matchKey = `R${r}-${[teamName, matchThisRound.opponent].sort().join('-')}`;
+                            if (!uniqueMatchesProcessed.has(matchKey)) {
+                                uniqueMatchesProcessed.add(matchKey);
+                                const diff = Math.abs(matchThisRound.this_team_score - matchThisRound.opposing_team_score);
+                                const totalGoals = matchThisRound.this_team_score + matchThisRound.opposing_team_score;
+                                
+                                if (diff > metrics.biggestWin.diff) {
+                                    metrics.biggestWin = { diff, teamA: teamName, teamB: matchThisRound.opponent, scoreA: matchThisRound.this_team_score, scoreB: matchThisRound.opposing_team_score, round: matchThisRound.round };
+                                }
+                                if (totalGoals > metrics.highestScoring.total) {
+                                    metrics.highestScoring = { total: totalGoals, teamA: teamName, teamB: matchThisRound.opponent, scoreA: matchThisRound.this_team_score, scoreB: matchThisRound.opposing_team_score, round: matchThisRound.round };
+                                }
+                            }
+                        } else if (!matchThisRound) {
+                             teamStreaks[teamName].current = 0; // Streak breaks on Bye
+                        }
+                    });
+
+                    parsedTeams.forEach(t => {
+                        if (!teamsPlayingThisRound.has(t.name)) currentHistoryState[t.name].b++;
+                    });
+
+                    const roundTable = parsedTeams.map(t => ({ name: t.name, ...currentHistoryState[t.name] }));
+                    roundTable.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.f - a.f);
+                    roundTable.forEach((t, i) => t.rank = i + 1);
+                    generatedHistory.push({ round: r, table: roundTable });
+                }
+
+                // Determine overall longest streak
+                let bestStreakTeam = '';
+                let maxStreak = 0;
+                Object.entries(teamStreaks).forEach(([t, s]) => {
+                    if (s.max > maxStreak) { maxStreak = s.max; bestStreakTeam = t; }
+                });
+                metrics.longestStreak = { streak: maxStreak, team: bestStreakTeam };
+
+                setHistoryData(generatedHistory);
+                setHistoryMetrics(metrics);
+                setScrubberRound(generatedHistory.length > 0 ? generatedHistory[generatedHistory.length - 1].round : 1);
+
+
+                // --- 3. Infer current round ---
+                const maxRounds = parsedTeams.reduce((max, team) => Math.max(max, team.p + team.b), 0);
+                const nextRound = maxRounds + 1;
+                setCurrentRound(nextRound);
+
+                // --- 4. Process Schedule (Predictions) ---
+                let maxScheduleRound = 0;
+                let newPredictions = [];
+                const processedMatches = new Set();
+                
+                // Find max total round limit in JSON
+                Object.values(json.team_results).forEach(matches => {
+                    matches.forEach(m => {
+                        const rNum = parseInt(m.round.replace(/[^0-9]/g, ''), 10);
+                        if (rNum && rNum > maxScheduleRound) maxScheduleRound = rNum;
+                    });
+                });
+                
+                if (maxScheduleRound > totalRounds) {
+                    setTotalRounds(maxScheduleRound);
+                } else if (maxScheduleRound > 0) {
+                    setTotalRounds(Math.max(totalRounds, maxScheduleRound));
+                }
+
+                // Generate Predictions for unplayed rounds
+                for (let r = nextRound; r <= maxScheduleRound; r++) {
+                    const teamsPlayingThisRound = new Set();
+
+                    Object.entries(json.team_results).forEach(([teamName, matches]) => {
+                        const matchThisRound = matches.find(m => parseInt(m.round.replace(/[^0-9]/g, ''), 10) === r);
+                        
+                        if (matchThisRound && matchThisRound.result === null) {
+                            teamsPlayingThisRound.add(teamName);
+                            const opponent = matchThisRound.opponent;
+                            teamsPlayingThisRound.add(opponent);
+                            
+                            // Make match string alphabetical to prevent duplicates regardless of Home/Away parsing 
+                            const teams = [teamName, opponent].sort();
+                            const matchKey = `R${r}-${teams[0]}-${teams[1]}`;
+                            
+                            if (!processedMatches.has(matchKey)) {
+                                processedMatches.add(matchKey);
+                                newPredictions.push({
+                                    id: Date.now() + Math.random() + processedMatches.size,
+                                    round: r,
+                                    teamA: teamName,
+                                    teamB: opponent,
+                                    scoreA: 0,
+                                    scoreB: 0,
+                                    isBye: false,
+                                    time: matchThisRound.time || ''
+                                });
+                            }
+                        }
+                    });
+
+                    // Assign BYEs if a team was not scheduled to play
+                    parsedTeams.forEach(team => {
+                        if (!teamsPlayingThisRound.has(team.name)) {
+                            newPredictions.push({
+                                id: Date.now() + Math.random() + processedMatches.size + 1000,
+                                round: r,
+                                teamA: team.name,
+                                teamB: '',
+                                scoreA: 0,
+                                scoreB: 0,
+                                isBye: true,
+                                time: ''
+                            });
+                        }
+                    });
+                }
+
+                setPredictions(newPredictions);
+                setActiveTab('history'); // Jump to history after rich import
+            };
 
             // Parse JSON File Upload
             const handleJSONUpload = (e) => {
@@ -323,205 +525,29 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                 reader.onload = (event) => {
                     try {
                         const json = JSON.parse(event.target.result);
-                        if (!json.standings || !json.team_results) {
-                            alert('Invalid JSON format. Expected "standings" and "team_results" keys.');
-                            return;
-                        }
-
-                        // 1. Parse Standings
-                        const parsedTeams = json.standings.map(t => ({
-                            name: t.Team,
-                            p: parseInt(t.Played, 10) || 0,
-                            w: parseInt(t.Wins, 10) || 0,
-                            d: parseInt(t.Draws, 10) || 0,
-                            l: parseInt(t.Losses, 10) || 0,
-                            b: parseInt(t.BYEs, 10) || 0,
-                            f: parseInt(t.For, 10) || 0,
-                            a: parseInt(t.Against, 10) || 0,
-                            gd: parseInt(t['Diff.'], 10) || 0,
-                            pts: parseInt(t.Points, 10) || 0,
-                            baseRank: 0
-                        }));
-
-                        parsedTeams.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.f - a.f);
-                        parsedTeams.forEach((t, i) => t.baseRank = i + 1);
-                        setBaseTable(parsedTeams);
-
-                        // --- 2. Calculate Deep History & Metrics ---
-                        let maxPlayedRound = 0;
-                        let metrics = {
-                            biggestWin: { diff: 0, teamA: '', teamB: '', scoreA: 0, scoreB: 0, round: '' },
-                            highestScoring: { total: 0, teamA: '', teamB: '', scoreA: 0, scoreB: 0, round: '' },
-                            longestStreak: { streak: 0, team: '' }
-                        };
-                        const teamStreaks = {};
-                        parsedTeams.forEach(t => teamStreaks[t.name] = { current: 0, max: 0 });
-
-                        // Find max played round
-                        Object.values(json.team_results).forEach(matches => {
-                            matches.forEach(m => {
-                                if (m.result !== null) {
-                                    const rNum = parseInt(m.round.replace(/[^0-9]/g, ''), 10);
-                                    if (rNum > maxPlayedRound) maxPlayedRound = rNum;
-                                }
-                            });
-                        });
-
-                        const currentHistoryState = {};
-                        parsedTeams.forEach(t => currentHistoryState[t.name] = { p: 0, w: 0, d: 0, l: 0, b: 0, f: 0, a: 0, gd: 0, pts: 0 });
-                        const generatedHistory = [];
-                        const uniqueMatchesProcessed = new Set(); // Prevent double counting metrics for Home/Away
-
-                        for (let r = 1; r <= maxPlayedRound; r++) {
-                            const teamsPlayingThisRound = new Set();
-                            
-                            Object.entries(json.team_results).forEach(([teamName, matches]) => {
-                                const matchThisRound = matches.find(m => parseInt(m.round.replace(/[^0-9]/g, ''), 10) === r);
-                                
-                                if (matchThisRound && matchThisRound.result !== null) {
-                                    teamsPlayingThisRound.add(teamName);
-                                    const stats = currentHistoryState[teamName];
-                                    stats.p++;
-                                    stats.f += matchThisRound.this_team_score;
-                                    stats.a += matchThisRound.opposing_team_score;
-                                    stats.gd = stats.f - stats.a;
-
-                                    if (matchThisRound.result === 'Win') { 
-                                        stats.w++; stats.pts += 3; 
-                                        teamStreaks[teamName].current++;
-                                        if (teamStreaks[teamName].current > teamStreaks[teamName].max) {
-                                            teamStreaks[teamName].max = teamStreaks[teamName].current;
-                                        }
-                                    } else {
-                                        teamStreaks[teamName].current = 0;
-                                        if (matchThisRound.result === 'Loss') stats.l++;
-                                        if (matchThisRound.result === 'Draw') { stats.d++; stats.pts += 1; }
-                                    }
-
-                                    // Metrics Check
-                                    const matchKey = `R${r}-${[teamName, matchThisRound.opponent].sort().join('-')}`;
-                                    if (!uniqueMatchesProcessed.has(matchKey)) {
-                                        uniqueMatchesProcessed.add(matchKey);
-                                        const diff = Math.abs(matchThisRound.this_team_score - matchThisRound.opposing_team_score);
-                                        const totalGoals = matchThisRound.this_team_score + matchThisRound.opposing_team_score;
-                                        
-                                        if (diff > metrics.biggestWin.diff) {
-                                            metrics.biggestWin = { diff, teamA: teamName, teamB: matchThisRound.opponent, scoreA: matchThisRound.this_team_score, scoreB: matchThisRound.opposing_team_score, round: matchThisRound.round };
-                                        }
-                                        if (totalGoals > metrics.highestScoring.total) {
-                                            metrics.highestScoring = { total: totalGoals, teamA: teamName, teamB: matchThisRound.opponent, scoreA: matchThisRound.this_team_score, scoreB: matchThisRound.opposing_team_score, round: matchThisRound.round };
-                                        }
-                                    }
-                                } else if (!matchThisRound) {
-                                     teamStreaks[teamName].current = 0; // Streak breaks on Bye
-                                }
-                            });
-
-                            parsedTeams.forEach(t => {
-                                if (!teamsPlayingThisRound.has(t.name)) currentHistoryState[t.name].b++;
-                            });
-
-                            const roundTable = parsedTeams.map(t => ({ name: t.name, ...currentHistoryState[t.name] }));
-                            roundTable.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.f - a.f);
-                            roundTable.forEach((t, i) => t.rank = i + 1);
-                            generatedHistory.push({ round: r, table: roundTable });
-                        }
-
-                        // Determine overall longest streak
-                        let bestStreakTeam = '';
-                        let maxStreak = 0;
-                        Object.entries(teamStreaks).forEach(([t, s]) => {
-                            if (s.max > maxStreak) { maxStreak = s.max; bestStreakTeam = t; }
-                        });
-                        metrics.longestStreak = { streak: maxStreak, team: bestStreakTeam };
-
-                        setHistoryData(generatedHistory);
-                        setHistoryMetrics(metrics);
-                        setScrubberRound(generatedHistory.length > 0 ? generatedHistory[generatedHistory.length - 1].round : 1);
-
-
-                        // --- 3. Infer current round ---
-                        const maxRounds = parsedTeams.reduce((max, team) => Math.max(max, team.p + team.b), 0);
-                        const nextRound = maxRounds + 1;
-                        setCurrentRound(nextRound);
-
-                        // --- 4. Process Schedule (Predictions) ---
-                        let maxScheduleRound = 0;
-                        let newPredictions = [];
-                        const processedMatches = new Set();
-                        
-                        // Find max total round limit in JSON
-                        Object.values(json.team_results).forEach(matches => {
-                            matches.forEach(m => {
-                                const rNum = parseInt(m.round.replace(/[^0-9]/g, ''), 10);
-                                if (rNum && rNum > maxScheduleRound) maxScheduleRound = rNum;
-                            });
-                        });
-                        
-                        if (maxScheduleRound > totalRounds) {
-                            setTotalRounds(maxScheduleRound);
-                        } else if (maxScheduleRound > 0) {
-                            setTotalRounds(Math.max(totalRounds, maxScheduleRound));
-                        }
-
-                        // Generate Predictions for unplayed rounds
-                        for (let r = nextRound; r <= maxScheduleRound; r++) {
-                            const teamsPlayingThisRound = new Set();
-
-                            Object.entries(json.team_results).forEach(([teamName, matches]) => {
-                                const matchThisRound = matches.find(m => parseInt(m.round.replace(/[^0-9]/g, ''), 10) === r);
-                                
-                                if (matchThisRound && matchThisRound.result === null) {
-                                    teamsPlayingThisRound.add(teamName);
-                                    const opponent = matchThisRound.opponent;
-                                    teamsPlayingThisRound.add(opponent);
-                                    
-                                    // Make match string alphabetical to prevent duplicates regardless of Home/Away parsing 
-                                    const teams = [teamName, opponent].sort();
-                                    const matchKey = `R${r}-${teams[0]}-${teams[1]}`;
-                                    
-                                    if (!processedMatches.has(matchKey)) {
-                                        processedMatches.add(matchKey);
-                                        newPredictions.push({
-                                            id: Date.now() + Math.random() + processedMatches.size,
-                                            round: r,
-                                            teamA: teamName,
-                                            teamB: opponent,
-                                            scoreA: 0,
-                                            scoreB: 0,
-                                            isBye: false,
-                                            time: matchThisRound.time || ''
-                                        });
-                                    }
-                                }
-                            });
-
-                            // Assign BYEs if a team was not scheduled to play
-                            parsedTeams.forEach(team => {
-                                if (!teamsPlayingThisRound.has(team.name)) {
-                                    newPredictions.push({
-                                        id: Date.now() + Math.random() + processedMatches.size + 1000,
-                                        round: r,
-                                        teamA: team.name,
-                                        teamB: '',
-                                        scoreA: 0,
-                                        scoreB: 0,
-                                        isBye: true,
-                                        time: ''
-                                    });
-                                }
-                            });
-                        }
-
-                        setPredictions(newPredictions);
-                        setActiveTab('history'); // Jump to history after rich import
-
+                        processParsedJSON(json);
                     } catch (err) {
                         console.error(err);
                         alert('Error parsing JSON file. Please ensure it is valid.');
                     }
                 };
                 reader.readAsText(file);
+            };
+
+            // Fetch JSON from Github
+            const handleFetchLatest = async () => {
+                setIsFetchingLatest(true);
+                try {
+                    const response = await fetch(GITHUB_JSON_URL);
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    const json = await response.json();
+                    processParsedJSON(json);
+                } catch (error) {
+                    console.error("Failed to fetch data:", error);
+                    alert("Could not load the latest data from GitHub. Please try uploading the JSON file instead.");
+                } finally {
+                    setIsFetchingLatest(false);
+                }
             };
 
             // Parse Table from Clipboard text (Manual Mode)
@@ -779,6 +805,23 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
             const activePredictionRounds = [...new Set(predictions.map(p => p.round))];
             const maxVisibleRound = Math.max(totalRounds, ...activePredictionRounds);
 
+            // Toggle team selection for Graph
+            const toggleTeamSelection = (teamName) => {
+                setSelectedTeams(prev => 
+                    prev.includes(teamName) ? prev.filter(t => t !== teamName) : [...prev, teamName]
+                );
+            };
+
+            // Style generator for Graph elements based on hover/selection
+            const getLineStyle = (teamName) => {
+                const hasActiveFilter = highlightedTeam || selectedTeams.length > 0;
+                const isActive = teamName === highlightedTeam || selectedTeams.includes(teamName);
+
+                if (!hasActiveFilter) return { opacity: 'opacity-70', strokeWidth: "2", shadow: '' };
+                if (isActive) return { opacity: 'opacity-100', strokeWidth: "4", shadow: 'drop-shadow-md' };
+                return { opacity: 'opacity-10', strokeWidth: "2", shadow: '' };
+            };
+
             // History Chart Parameters
             const getChartCoordinates = () => {
                 if (!historyData.length || !baseTable.length) return { paths: [], points: [] };
@@ -819,6 +862,27 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
             };
 
             const chartData = useMemo(() => getChartCoordinates(), [historyData, baseTable]);
+
+            // Next Round Upcoming Matches
+            const nextRoundMatches = useMemo(() => {
+                return predictions
+                    .filter(p => p.round === currentRound)
+                    .sort((a, b) => {
+                        if (!a.time && !b.time) return 0;
+                        if (!a.time) return 1;
+                        if (!b.time) return -1;
+                        const parseTime = (t) => {
+                            const match = t.match(/(\d+):(\d+)([AP]M)/i);
+                            if(!match) return 0;
+                            let [_, h, m, ampm] = match;
+                            h = parseInt(h);
+                            if(ampm.toUpperCase() === 'PM' && h < 12) h += 12;
+                            if(ampm.toUpperCase() === 'AM' && h === 12) h = 0;
+                            return h * 60 + parseInt(m);
+                        };
+                        return parseTime(a.time) - parseTime(b.time);
+                    });
+            }, [predictions, currentRound]);
 
             return (
                 <div className="min-h-screen bg-gray-50 pb-20">
@@ -868,7 +932,16 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                                     
                                     {/* Option 1: JSON Upload */}
                                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                                        <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center"><IconUpload /> Option 1: Import via JSON File</h2>
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="text-lg font-bold text-gray-800 flex items-center"><IconUpload /> Option 1: Import via JSON File</h2>
+                                            <button 
+                                                onClick={handleFetchLatest}
+                                                disabled={isFetchingLatest}
+                                                className={`text-xs font-bold text-white bg-gray-900 hover:bg-gray-800 px-3 py-1.5 rounded-md transition-colors flex items-center ${isFetchingLatest ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                                {isFetchingLatest ? 'Fetching...' : <><IconGithub /> Use Latest Data</>}
+                                            </button>
+                                        </div>
                                         <p className="text-sm text-gray-500 mb-4">Upload a structured JSON file to automatically populate the standings and upcoming schedule.</p>
                                         <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors relative cursor-pointer group">
                                             <input type="file" accept=".json" onChange={handleJSONUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
@@ -990,20 +1063,35 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
 
                                 {/* Graph Section */}
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                                    <div className="flex justify-between items-center mb-6">
-                                        <h2 className="text-lg font-bold text-gray-900">Season Rank Trajectory</h2>
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div>
+                                            <h2 className="text-lg font-bold text-gray-900">Season Rank Trajectory</h2>
+                                            <p className="text-xs text-gray-500 mt-1">Click a team to pin their highlight.</p>
+                                        </div>
                                         <div className="flex flex-wrap gap-2 justify-end max-w-2xl">
-                                            {baseTable.map((t, i) => (
-                                                <div 
-                                                    key={t.name} 
-                                                    onMouseEnter={() => setHighlightedTeam(t.name)}
-                                                    onMouseLeave={() => setHighlightedTeam(null)}
-                                                    className={`text-[10px] font-bold px-2 py-1 rounded cursor-pointer transition-all ${highlightedTeam === t.name || !highlightedTeam ? 'opacity-100 scale-105' : 'opacity-30'}`}
-                                                    style={{ backgroundColor: `${TEAM_COLORS[i % TEAM_COLORS.length]}20`, color: TEAM_COLORS[i % TEAM_COLORS.length] }}
-                                                >
-                                                    {t.name}
-                                                </div>
-                                            ))}
+                                            {baseTable.map((t, i) => {
+                                                const style = getLineStyle(t.name);
+                                                const isSelected = selectedTeams.includes(t.name);
+                                                return (
+                                                    <div 
+                                                        key={t.name} 
+                                                        onMouseEnter={() => setHighlightedTeam(t.name)}
+                                                        onMouseLeave={() => setHighlightedTeam(null)}
+                                                        onClick={() => toggleTeamSelection(t.name)}
+                                                        className={`text-[10px] font-bold px-2 py-1 rounded cursor-pointer transition-all border ${style.opacity !== 'opacity-10' ? 'opacity-100 scale-105 shadow-sm' : 'opacity-40'}`}
+                                                        style={{ 
+                                                            backgroundColor: isSelected ? TEAM_COLORS[i % TEAM_COLORS.length] : `${TEAM_COLORS[i % TEAM_COLORS.length]}15`, 
+                                                            color: isSelected ? '#fff' : TEAM_COLORS[i % TEAM_COLORS.length],
+                                                            borderColor: isSelected ? 'transparent' : TEAM_COLORS[i % TEAM_COLORS.length]
+                                                        }}
+                                                    >
+                                                        {t.name}
+                                                    </div>
+                                                );
+                                            })}
+                                            {selectedTeams.length > 0 && (
+                                                <button onClick={() => setSelectedTeams([])} className="text-[10px] font-bold px-2 py-1 rounded bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors">Clear</button>
+                                            )}
                                         </div>
                                     </div>
                                     
@@ -1028,32 +1116,43 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                                                 );
                                             })}
 
-                                            {/* Paths */}
+                                            {/* Paths with Hover Overlay */}
                                             {chartData.paths.map((path, i) => {
-                                                const isHighlighted = highlightedTeam === path.name;
-                                                const isFaded = highlightedTeam && !isHighlighted;
+                                                const style = getLineStyle(path.name);
                                                 return (
-                                                    <path 
-                                                        key={path.name} 
-                                                        d={path.d} 
-                                                        fill="none" 
-                                                        stroke={TEAM_COLORS[i % TEAM_COLORS.length]} 
-                                                        strokeWidth={isHighlighted ? "4" : "2"} 
-                                                        className={`transition-all duration-300 ${isFaded ? 'opacity-10' : isHighlighted ? 'opacity-100 drop-shadow-md' : 'opacity-70'}`}
-                                                    />
+                                                    <g key={path.name}>
+                                                        {/* Visible Stroke */}
+                                                        <path 
+                                                            d={path.d} 
+                                                            fill="none" 
+                                                            stroke={TEAM_COLORS[i % TEAM_COLORS.length]} 
+                                                            strokeWidth={style.strokeWidth} 
+                                                            className={`transition-all duration-300 ${style.opacity} ${style.shadow}`}
+                                                        />
+                                                        {/* Invisible thicker stroke for easier hovering/clicking */}
+                                                        <path 
+                                                            d={path.d} 
+                                                            fill="none" 
+                                                            stroke="transparent" 
+                                                            strokeWidth="20" 
+                                                            className="cursor-pointer"
+                                                            onMouseEnter={() => setHighlightedTeam(path.name)}
+                                                            onMouseLeave={() => setHighlightedTeam(null)}
+                                                            onClick={() => toggleTeamSelection(path.name)}
+                                                        />
+                                                    </g>
                                                 );
                                             })}
                                             
                                             {/* Points */}
                                             {Object.entries(chartData.points).map(([teamName, points], teamIdx) => {
-                                                const isHighlighted = highlightedTeam === teamName;
-                                                const isFaded = highlightedTeam && !isHighlighted;
+                                                const style = getLineStyle(teamName);
                                                 return points.map((p, i) => (
                                                     <circle 
                                                         key={`${teamName}-${i}`} 
-                                                        cx={p.x} cy={p.y} r={isHighlighted ? "4" : "0"} 
+                                                        cx={p.x} cy={p.y} r={style.opacity !== 'opacity-10' ? "4" : "0"} 
                                                         fill={TEAM_COLORS[teamIdx % TEAM_COLORS.length]} 
-                                                        className={`transition-all duration-300 ${isFaded ? 'opacity-0' : 'opacity-100'}`}
+                                                        className={`transition-all duration-300 ${style.opacity}`}
                                                     />
                                                 ));
                                             })}
@@ -1062,7 +1161,7 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                                 </div>
 
                                 {/* Dynamic Scrubber Table */}
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                                     <div className="flex justify-between items-end mb-6">
                                         <div>
                                             <h2 className="text-lg font-bold text-gray-900">Time Machine Table</h2>
@@ -1130,6 +1229,43 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                                         </table>
                                     </div>
                                 </div>
+                                
+                                {/* Next Round Upcoming Matches */}
+                                {nextRoundMatches.length > 0 && (
+                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
+                                        <div className="mb-6">
+                                            <h2 className="text-lg font-bold text-gray-900">Upcoming Fixtures</h2>
+                                            <p className="text-sm text-gray-500">Scheduled games for Round {currentRound}.</p>
+                                        </div>
+                                        
+                                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {nextRoundMatches.map(match => (
+                                                <div key={match.id} className={`p-4 rounded-xl border ${match.isBye ? 'bg-gray-50 border-gray-200 border-dashed' : 'bg-white shadow-sm border-gray-200'} flex flex-col justify-center`}>
+                                                    {match.isBye ? (
+                                                        <div className="text-center">
+                                                            <span className="text-sm font-bold text-gray-800 block">{match.teamA}</span>
+                                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 block">Has a BYE</span>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <div className="flex justify-between items-center mb-3">
+                                                                <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-1 rounded border border-blue-100">{match.time || 'TBD'}</span>
+                                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Round {currentRound}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center gap-2">
+                                                                <span className="flex-1 text-sm font-bold text-gray-800 truncate text-right">{match.teamA}</span>
+                                                                <span className="text-xs font-black text-gray-300 px-2">VS</span>
+                                                                <span className="flex-1 text-sm font-bold text-gray-800 truncate text-left">{match.teamB}</span>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        
+                                        <button onClick={() => setActiveTab('predict')} className="mt-6 text-blue-600 font-bold text-sm block text-center w-full bg-blue-50 hover:bg-blue-100 py-3 rounded-xl transition-colors">Predict these fixtures &rarr;</button>
+                                    </div>
+                                )}
                             </div>
                         )}
 
