@@ -1,6 +1,7 @@
 ### Futsal/Football table predictor
 ## Data sources
 This page is designed to work with copy and pasted data from sources similar to the below:
+
 **Competition Table** = 'View competition table' (e.g. https://www.futsalhq.com.au/pointscore/7636/16040)
 - Copy and paste the entire table, including the headers (Team, Played, Wins, etc.)
 
