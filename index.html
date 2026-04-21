@@ -60,7 +60,7 @@
             const [baseTable, setBaseTable] = useState([]); // [{name, p, w, d, l, b, f, a, gd, pts, baseRank}]
             const [currentRound, setCurrentRound] = useState(1);
             const [totalRounds, setTotalRounds] = useState(14);
-            const [predictions, setPredictions] = useState([]); // [{id, round, teamA, teamB, scoreA, scoreB, isBye}]
+            const [predictions, setPredictions] = useState([]); // [{id, round, teamA, teamB, scoreA, scoreB, isBye, time}]
             const [activeTab, setActiveTab] = useState('import'); // 'import', 'predict'
 
             // Parse Table from Clipboard text
@@ -70,7 +70,7 @@
                 
                 lines.forEach(line => {
                     let tokens = line.trim().split(/\s+/);
-                    if (tokens.length < 8) return; // Too short to be a stats row
+                    if (tokens.length < 8) return;
 
                     // Extract all numbers from the end
                     const stats = [];
@@ -88,14 +88,14 @@
                         tokens.push(stats.shift());
                     }
                     
-                    if (stats.length < 8) return; // Need at least P W D L F A GD Pts
+                    if (stats.length < 8) return;
 
                     let p, w, d, l, b, f, a, gd, pts;
                     if (stats.length === 9) {
                         [p, w, d, l, b, f, a, gd, pts] = stats.map(val => val === '-' ? 0 : parseInt(val, 10));
                     } else if (stats.length === 8) {
                         [p, w, d, l, f, a, gd, pts] = stats.map(val => val === '-' ? 0 : parseInt(val, 10));
-                        b = 0; // Byes defaults to 0 if not present
+                        b = 0;
                     }
 
                     // Remove initial rank number if exists
@@ -137,10 +137,9 @@
 
                         if (!currentParseRound) return;
 
-                        if (line.includes('have a BYE')) {
-                            // Strip punctuation to match the normalized table names
+                        if (line.includes('have a BYE') || line.includes('have a bye')) {
                             const normalizedLine = line.replace(/[^a-zA-Z0-9\s-]/g, '');
-                            const byeTeam = knownTeams.find(t => normalizedLine.includes(t));
+                            const byeTeam = knownTeams.find(t => normalizedLine.includes(t.replace(/[^a-zA-Z0-9\s-]/g, '')));
                             if (byeTeam) {
                                 newPredictions.push({
                                     id: Date.now() + Math.random(),
@@ -159,19 +158,17 @@
                         const timeMatch = line.match(/\d{1,2}:\d{2}[AP]M/i);
                         if (timeMatch) {
                             const time = timeMatch[0];
-                            // Remove time, then strip punctuation to match normalized table names
                             let remainingLine = line.replace(time, '').replace(/[^a-zA-Z0-9\s-]/g, '');
                             let foundTeams = [];
 
                             for (const team of knownTeams) {
-                                if (remainingLine.includes(team)) {
-                                    foundTeams.push({ name: team, index: remainingLine.indexOf(team) });
-                                    // Mask the team so we don't match parts of it again
-                                    remainingLine = remainingLine.split(team).join('###'); 
+                                const normalizedTeam = team.replace(/[^a-zA-Z0-9\s-]/g, '');
+                                if (remainingLine.includes(normalizedTeam)) {
+                                    foundTeams.push({ name: team, index: remainingLine.indexOf(normalizedTeam) });
+                                    remainingLine = remainingLine.split(normalizedTeam).join('###'); 
                                 }
                             }
                             
-                            // Sort by where they appeared in the string (Home vs Away)
                             foundTeams.sort((a, b) => a.index - b.index);
 
                             if (foundTeams.length >= 2) {
@@ -193,11 +190,9 @@
                 setPredictions(newPredictions);
 
                 if(parsedTeams.length > 0) {
-                    // Infer Current Round based on max games played + byes
                     const maxRounds = parsedTeams.reduce((max, team) => Math.max(max, team.p + team.b), 0);
                     let nextRound = maxRounds + 1;
                     
-                    // If schedule provides a more specific upcoming round, sync to that
                     if (minScheduleRound !== Infinity && minScheduleRound > 0) {
                         nextRound = minScheduleRound;
                     }
@@ -214,7 +209,6 @@
             const predictedTable = useMemo(() => {
                 if (baseTable.length === 0) return [];
                 
-                // Deep copy
                 const table = JSON.parse(JSON.stringify(baseTable));
                 const teamMap = {};
                 table.forEach(t => teamMap[t.name] = t);
@@ -244,7 +238,6 @@
                     }
                 });
 
-                // Re-sort based on predictions
                 table.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.f - a.f);
                 table.forEach((t, i) => t.predictedRank = i + 1);
                 
@@ -312,14 +305,12 @@
                 setPredictions(predictions.filter(p => p.id !== id));
             };
 
-            // Helpers to get arrows
             const getMovementIcon = (base, predicted) => {
                 if (predicted < base) return <IconUp />;
                 if (predicted > base) return <IconDown />;
                 return <IconDash />;
             };
 
-            // Get unique rounds from predictions to ensure we show them even if outside current bounds
             const activePredictionRounds = [...new Set(predictions.map(p => p.round))];
             const maxVisibleRound = Math.max(totalRounds, ...activePredictionRounds);
 
@@ -327,7 +318,7 @@
                 <div className="min-h-screen bg-gray-50 pb-20">
                     {/* Header */}
                     <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
-                        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                        <div className="w-[96%] max-w-[1800px] mx-auto px-4 h-16 flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                                 <div className="bg-blue-600 p-2 rounded-lg text-white">
                                     <IconTrophy />
@@ -355,9 +346,9 @@
                         </div>
                     </header>
 
-                    <main className="max-w-6xl mx-auto px-4 mt-6">
+                    <main className="w-[96%] max-w-[1800px] mx-auto px-4 mt-6">
                         {activeTab === 'import' && (
-                            <div className="grid md:grid-cols-2 gap-6">
+                            <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
                                 {/* Paste Area */}
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                                     <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center"><IconClipboard /> 1. Import Data</h2>
@@ -421,10 +412,10 @@
                         )}
 
                         {activeTab === 'predict' && (
-                            <div className="flex flex-col gap-6 items-start w-full">
+                            <div className="flex flex-col gap-6 items-center w-full">
                                 
-                                {/* TOP ROW: Live Table (Sticky) */}
-                                <div className="w-full sticky top-[4.5rem] z-20">
+                                {/* TOP ROW: Live Table (Sticky, restricted width) */}
+                                <div className="w-full max-w-6xl sticky top-[4.5rem] z-20">
                                     <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
                                         <div className="bg-gray-900 px-5 py-4 flex justify-between items-center">
                                             <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -480,13 +471,14 @@
                                     </div>
                                 </div>
 
-                                {/* BOTTOM ROW: Predictions Builder */}
+                                {/* BOTTOM ROW: Predictions Builder (Full width, horizontal scrolling) */}
                                 <div className="w-full bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
                                     <div className="flex justify-between items-center mb-6">
                                         <h2 className="text-xl font-bold text-gray-900">Match Predictor</h2>
                                     </div>
 
-                                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+                                    {/* Horizontal Scrolling Container */}
+                                    <div className="flex overflow-x-auto gap-6 items-start pb-6 snap-x hide-scrollbar">
                                         {Array.from({ length: maxVisibleRound - currentRound + 1 }, (_, i) => currentRound + i).map(roundNum => {
                                             const roundMatches = predictions
                                                 .filter(p => p.round === roundNum)
@@ -507,7 +499,7 @@
                                                 });
                                             
                                             return (
-                                                <div key={roundNum} className="bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                                                <div key={roundNum} className="w-[340px] flex-none bg-gray-50/50 p-4 rounded-xl border border-gray-100 snap-start">
                                                     <div className="flex items-center justify-between mb-3 border-b border-gray-200 pb-2">
                                                         <h3 className="font-bold text-gray-700 bg-white px-3 py-1 rounded-md text-sm border border-gray-200 shadow-sm">Round {roundNum}</h3>
                                                         <div className="flex gap-2">
@@ -515,13 +507,13 @@
                                                                 onClick={() => addBye(roundNum)}
                                                                 className="text-xs font-bold text-gray-600 hover:text-gray-800 bg-gray-200 px-2 py-1 rounded transition-colors"
                                                             >
-                                                                + Add Bye
+                                                                + Bye
                                                             </button>
                                                             <button 
                                                                 onClick={() => addMatch(roundNum)}
                                                                 className="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded transition-colors"
                                                             >
-                                                                + Add Match
+                                                                + Match
                                                             </button>
                                                         </div>
                                                     </div>
@@ -554,7 +546,7 @@
                                                                          <select 
                                                                             value={match.teamA} 
                                                                             onChange={(e) => updateMatch(match.id, 'teamA', e.target.value)}
-                                                                            className="w-full text-sm font-semibold text-gray-700 bg-gray-100 border-transparent rounded-lg p-2 focus:ring-0 focus:border-transparent outline-none"
+                                                                            className="w-full text-sm font-semibold text-gray-700 bg-gray-100 border-transparent rounded-lg p-2 focus:ring-0 focus:border-transparent outline-none truncate"
                                                                         >
                                                                             {getAvailableTeams(roundNum, match.id, match.teamA).map(t => <option key={t} value={t}>{t}</option>)}
                                                                         </select>
@@ -599,14 +591,17 @@
                                                 </div>
                                             )
                                         })}
+
+                                        {/* Add Round Card Button */}
+                                        <button 
+                                            onClick={() => setTotalRounds(r => r + 1)}
+                                            className="w-[200px] flex-none border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:text-gray-700 transition-colors flex flex-col items-center justify-center min-h-[150px] snap-start mt-[3.5rem]"
+                                        >
+                                            <span className="text-2xl mb-1">+</span>
+                                            Add Round {maxVisibleRound + 1}
+                                        </button>
+
                                     </div>
-                                    
-                                    <button 
-                                        onClick={() => setTotalRounds(r => r + 1)}
-                                        className="w-full mt-6 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:text-gray-700 transition-colors"
-                                    >
-                                        Add Round {maxVisibleRound + 1}
-                                    </button>
                                 </div>
                             </div>
                         )}
