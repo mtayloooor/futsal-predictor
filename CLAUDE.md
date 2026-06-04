@@ -9,12 +9,32 @@ A single-page futsal/football league table predictor for Melbourne Social Futsal
 ## Repo layout
 
 ```
-README.md                 - User-facing usage notes (data sources)
-index.html                - The entire app (HTML + Tailwind + React via CDN + Babel JSX)
-futsal_season_data.json   - Current season snapshot, fetched by the "Use Latest Data" button
+README.md                              - User-facing usage notes (data sources)
+index.html                             - The entire app (HTML + Tailwind + React via CDN + Babel JSX)
+futsal_results_website_crawler.py      - Playwright + BeautifulSoup scraper that produces a season JSON
+seasons/manifest.json                  - Lists every season JSON file in this repo
+seasons/<season-id>.json               - One file per season (current + historic snapshots)
 ```
 
 There is no build step, no package.json, no tests. Edits to `index.html` ship by committing — GitHub Pages serves it directly.
+
+## Season files & manifest
+
+`seasons/manifest.json` is the discovery mechanism (GitHub raw doesn't list directories). Shape:
+
+```
+{
+  "latest": "2025-26-summer",
+  "seasons": [
+    { "id": "2025-26-summer", "label": "Summer 2025/26",
+      "file": "2025-26-summer.json", "competition_url": "..." }
+  ]
+}
+```
+
+The "Use Latest Data" flow fetches the manifest, then every referenced season JSON in parallel, then shows a season selector in the header. The two seasons-per-year cycle spans the calendar year boundary, so use IDs like `2025-26-summer` / `2026-winter`.
+
+The crawler script reads `COMPETITION_TABLE_URL` and `SEASON_ID` from its config block and writes `seasons/<SEASON_ID>.json`. After running it for a new season, add a corresponding entry to `manifest.json` and (usually) flip `latest` to the new ID.
 
 ## Tech stack (all via CDN, no bundler)
 
@@ -57,12 +77,16 @@ Played matches have `result` set; future fixtures have `result: null` and are us
 ## App structure (in `index.html`)
 
 The single `App` component drives three tabs via `activeTab`:
-1. **`import`** (Data Setup): three import paths — fetch latest from GitHub raw URL, upload JSON, or paste raw text from futsalhq.com.au.
-2. **`history`** (Progress): rank-trajectory SVG chart, highlight cards (longest win streak, highest-scoring game, biggest blowout), per-round scrubber table, upcoming fixtures.
-3. **`predict`** (Predictions): sticky predicted league table + per-round score entry. Recomputes via the `predictedTable` `useMemo` whenever predictions change.
+1. **`import`** (Data Setup): three import paths — fetch latest from GitHub (loads ALL seasons via the manifest), upload a single JSON, or paste raw text from futsalhq.com.au.
+2. **`history`** (Progress / History): rank-trajectory SVG chart, highlight cards (longest win streak, highest-scoring game, biggest blowout), per-round scrubber table, upcoming fixtures. The tab label flips from "Progress" to "History" when the user is viewing a non-latest season.
+3. **`predict`** (Predictions): sticky predicted league table + per-round score entry. Recomputes via the `predictedTable` `useMemo` whenever predictions change. **Disabled when viewing a historic season** — past seasons have no unplayed fixtures.
+
+A header-level season `<select>` appears whenever multiple seasons have been loaded (i.e. only via "Use Latest Data"). Switching season re-runs `processParsedJSON` against that season's JSON. Predictions are only seeded for the latest season; switching wipes any user-entered hypothetical scores on the latest season — that's a known trade-off, not a bug.
 
 Key functions to know:
-- `processParsedJSON(json)` — the main pipeline. Parses standings → builds full historical table per round → computes metrics → seeds predictions from unplayed fixtures. Both the GitHub fetch and the file upload feed into this.
+- `processParsedJSON(json, { seedPredictions = true, switchToHistory = true } = {})` — the main pipeline. Parses standings → builds full historical table per round → computes metrics → seeds predictions from unplayed fixtures. Options let the season switcher reuse it without touching the active tab or wiping predictions inappropriately.
+- `handleFetchLatest()` — fetches `seasons/manifest.json` then every season JSON in parallel; populates `availableSeasons`, `loadedSeasons`, and processes the `latest` one.
+- `handleSeasonChange(id)` — re-processes a different season's JSON in place; only seeds predictions if `id === latestSeasonId`.
 - `handleParse()` — the manual paste fallback. Parses tab/space-separated league table text plus a free-form schedule text (rounds, BYE lines, time-prefixed fixture rows).
 - `predictedTable` (useMemo) — clones baseTable, applies predictions, re-sorts by `pts → gd → f`.
 - `getChartCoordinates()` — builds the SVG rank-trajectory paths.
@@ -71,7 +95,7 @@ Sort/tiebreak rule used everywhere: **points → goal difference → goals for**
 
 ## Constants worth knowing
 
-- `GITHUB_JSON_URL` (line ~269): hardcoded to `main` branch raw URL. Update if the data file moves or branches change.
+- `GITHUB_RAW_BASE` / `GITHUB_MANIFEST_URL` / `seasonFileUrl()` (line ~269): all point at the `main` branch raw URL. Update if the repo moves or the data layout changes.
 - `DEFAULT_LEAGUE_TABLE` / `DEFAULT_SCHEDULE` (lines ~31, ~44): seed text for the manual-entry textareas, useful as a parsing fixture.
 - `TEAM_COLORS`: 14 hex colors cycled by team index for the chart and legend.
 

@@ -1,0 +1,11 @@
+{
+    "latest": "2025-26-summer",
+    "seasons": [
+        {
+            "id": "2025-26-summer",
+            "label": "Summer 2025/26",
+            "file": "2025-26-summer.json",
+            "competition_url": "https://www.futsalhq.com.au/pointscore/7636/16040"
+        }
+    ]
+}
