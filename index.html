@@ -266,7 +266,9 @@ Wed 06 May 2026 9:10PM RB Football Club Climate Kookaburras F.C.
 Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
 
 
-        const GITHUB_JSON_URL = "https://raw.githubusercontent.com/mtayloooor/futsal-predictor/main/futsal_season_data.json";
+        const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/mtayloooor/futsal-predictor/main";
+        const GITHUB_MANIFEST_URL = `${GITHUB_RAW_BASE}/seasons/manifest.json`;
+        const seasonFileUrl = (filename) => `${GITHUB_RAW_BASE}/seasons/${filename}`;
 
         // --- ICONS ---
         const IconUp = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500"><path d="m18 15-6-6-6 6"/></svg>;
@@ -328,8 +330,17 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
             const [selectedTeams, setSelectedTeams] = useState([]);
             const [hoveredPoint, setHoveredPoint] = useState(null);
 
+            // Multi-season states (only populated via the "Use Latest Data" flow)
+            const [availableSeasons, setAvailableSeasons] = useState([]); // [{id, label, file}]
+            const [loadedSeasons, setLoadedSeasons] = useState({}); // { [id]: rawJson }
+            const [latestSeasonId, setLatestSeasonId] = useState(null);
+            const [currentSeasonId, setCurrentSeasonId] = useState(null);
+
+            const isViewingHistoricSeason = currentSeasonId && latestSeasonId && currentSeasonId !== latestSeasonId;
+
             // Reusable JSON Processing Logic
-            const processParsedJSON = (json) => {
+            const processParsedJSON = (json, options = {}) => {
+                const { seedPredictions = true, switchToHistory = true } = options;
                 if (!json.standings || !json.team_results) {
                     alert('Invalid JSON format. Expected "standings" and "team_results" keys.');
                     return;
@@ -468,6 +479,12 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                 setCurrentRound(nextRound);
 
                 // --- 4. Process Schedule (Predictions) ---
+                if (!seedPredictions) {
+                    setPredictions([]);
+                    if (switchToHistory) setActiveTab('history');
+                    return;
+                }
+
                 let maxScheduleRound = 0;
                 let newPredictions = [];
                 const processedMatches = new Set();
@@ -532,7 +549,14 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                 }
 
                 setPredictions(newPredictions);
-                setActiveTab('history'); 
+                if (switchToHistory) setActiveTab('history');
+            };
+
+            const resetSeasonContext = () => {
+                setAvailableSeasons([]);
+                setLoadedSeasons({});
+                setLatestSeasonId(null);
+                setCurrentSeasonId(null);
             };
 
             const handleJSONUpload = (e) => {
@@ -543,6 +567,7 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                 reader.onload = (event) => {
                     try {
                         const json = JSON.parse(event.target.result);
+                        resetSeasonContext();
                         processParsedJSON(json);
                     } catch (err) {
                         console.error(err);
@@ -555,10 +580,29 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
             const handleFetchLatest = async () => {
                 setIsFetchingLatest(true);
                 try {
-                    const response = await fetch(GITHUB_JSON_URL);
-                    if (!response.ok) throw new Error("Network response was not ok");
-                    const json = await response.json();
-                    processParsedJSON(json);
+                    const manifestRes = await fetch(GITHUB_MANIFEST_URL);
+                    if (!manifestRes.ok) throw new Error("Manifest fetch failed");
+                    const manifest = await manifestRes.json();
+                    const seasonsList = Array.isArray(manifest.seasons) ? manifest.seasons : [];
+                    if (seasonsList.length === 0) throw new Error("Manifest contains no seasons");
+
+                    const latestId = manifest.latest || seasonsList[seasonsList.length - 1].id;
+
+                    const results = await Promise.all(
+                        seasonsList.map(async (s) => {
+                            const res = await fetch(seasonFileUrl(s.file));
+                            if (!res.ok) throw new Error(`Failed to load ${s.file}`);
+                            return [s.id, await res.json()];
+                        })
+                    );
+                    const seasonsById = Object.fromEntries(results);
+
+                    setAvailableSeasons(seasonsList);
+                    setLoadedSeasons(seasonsById);
+                    setLatestSeasonId(latestId);
+                    setCurrentSeasonId(latestId);
+
+                    processParsedJSON(seasonsById[latestId]);
                 } catch (error) {
                     console.error("Failed to fetch data:", error);
                     alert("Could not load the latest data from GitHub. Please try uploading the JSON file instead.");
@@ -567,7 +611,16 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                 }
             };
 
+            const handleSeasonChange = (id) => {
+                if (!loadedSeasons[id] || id === currentSeasonId) return;
+                setCurrentSeasonId(id);
+                const isLatest = id === latestSeasonId;
+                processParsedJSON(loadedSeasons[id], { seedPredictions: isLatest, switchToHistory: false });
+                if (!isLatest && activeTab === 'predict') setActiveTab('history');
+            };
+
             const handleParse = () => {
+                resetSeasonContext();
                 const lines = rawText.trim().split('\n');
                 const parsedTeams = [];
                 
@@ -902,27 +955,49 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                                 </div>
                             </div>
                             
-                            <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-                                <button 
-                                    onClick={() => setActiveTab('import')}
-                                    className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${activeTab === 'import' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
-                                >
-                                    Data Setup
-                                </button>
-                                <button 
-                                    onClick={() => historyData.length > 0 && setActiveTab('history')}
-                                    className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all flex items-center gap-2 ${historyData.length === 0 ? 'opacity-50 cursor-not-allowed text-gray-400' : activeTab === 'history' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
-                                    disabled={historyData.length === 0}
-                                    title={historyData.length === 0 ? "Import JSON data to unlock Season Progress" : ""}
-                                >
-                                    <IconChart /> Progress
-                                </button>
-                                <button 
-                                    onClick={() => baseTable.length > 0 && setActiveTab('predict')}
-                                    className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${baseTable.length === 0 ? 'opacity-50 cursor-not-allowed text-gray-400' : activeTab === 'predict' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
-                                >
-                                    Predictions
-                                </button>
+                            <div className="flex items-center gap-3">
+                                {availableSeasons.length > 0 && (
+                                    <div className="flex items-center gap-2 bg-gray-100 border border-gray-200 rounded-lg px-2 py-1">
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 pl-1">Season</span>
+                                        <select
+                                            value={currentSeasonId || ''}
+                                            onChange={(e) => handleSeasonChange(e.target.value)}
+                                            disabled={availableSeasons.length <= 1}
+                                            className="bg-white border border-gray-200 rounded-md text-sm font-semibold text-gray-800 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-70"
+                                        >
+                                            {availableSeasons.map((s) => (
+                                                <option key={s.id} value={s.id}>
+                                                    {s.label}{s.id === latestSeasonId ? ' (Latest)' : ''}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+
+                                <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+                                    <button
+                                        onClick={() => setActiveTab('import')}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${activeTab === 'import' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
+                                    >
+                                        Data Setup
+                                    </button>
+                                    <button
+                                        onClick={() => historyData.length > 0 && setActiveTab('history')}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all flex items-center gap-2 ${historyData.length === 0 ? 'opacity-50 cursor-not-allowed text-gray-400' : activeTab === 'history' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
+                                        disabled={historyData.length === 0}
+                                        title={historyData.length === 0 ? "Import JSON data to unlock Season Progress" : ""}
+                                    >
+                                        <IconChart /> {isViewingHistoricSeason ? 'History' : 'Progress'}
+                                    </button>
+                                    <button
+                                        onClick={() => baseTable.length > 0 && !isViewingHistoricSeason && setActiveTab('predict')}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${baseTable.length === 0 || isViewingHistoricSeason ? 'opacity-50 cursor-not-allowed text-gray-400' : activeTab === 'predict' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
+                                        disabled={baseTable.length === 0 || isViewingHistoricSeason}
+                                        title={isViewingHistoricSeason ? "Predictions are only available for the latest season" : ""}
+                                    >
+                                        Predictions
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </header>
