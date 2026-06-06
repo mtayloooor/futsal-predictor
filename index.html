@@ -920,6 +920,38 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
 
             const chartData = useMemo(() => getChartCoordinates(), [historyData, baseTable]);
 
+            const roundResults = useMemo(() => {
+                const round = historyData.find(h => h.round === scrubberRound);
+                if (!round) return { matches: [], byes: [] };
+
+                const seen = new Set();
+                const matches = [];
+                const byes = [];
+
+                round.table.forEach(team => {
+                    const info = team.matchInfo;
+                    if (!info) return;
+                    if (info.isBye) { byes.push(team.name); return; }
+                    if (info.unplayed || !info.opponent || !info.score) return;
+
+                    const pair = [team.name, info.opponent].sort();
+                    const key = pair.join('|');
+                    if (seen.has(key)) return;
+                    seen.add(key);
+
+                    const [myScore, theirScore] = info.score.split('-').map(s => parseInt(s, 10));
+                    matches.push({
+                        teamA: team.name,
+                        teamB: info.opponent,
+                        scoreA: myScore,
+                        scoreB: theirScore,
+                        resultForA: info.result,
+                    });
+                });
+
+                return { matches, byes };
+            }, [historyData, scrubberRound]);
+
             const nextRoundMatches = useMemo(() => {
                 return predictions
                     .filter(p => p.round === currentRound)
@@ -1359,6 +1391,45 @@ Page 22 of 22 Accessed at 21 Apr 2026 at 18:01:15`;
                                             <span>R{historyData[historyData.length - 1]?.round || 1}</span>
                                         </div>
                                     </div>
+
+                                    {(roundResults.matches.length > 0 || roundResults.byes.length > 0) && (
+                                        <div className="mb-6">
+                                            <div className="flex items-baseline justify-between mb-3">
+                                                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500">Round {scrubberRound} Results</h3>
+                                                <span className="text-xs text-gray-400">{roundResults.matches.length} game{roundResults.matches.length === 1 ? '' : 's'}{roundResults.byes.length > 0 ? ` · ${roundResults.byes.length} BYE${roundResults.byes.length === 1 ? '' : 's'}` : ''}</span>
+                                            </div>
+                                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                {roundResults.matches.map((m, i) => {
+                                                    const aWon = m.scoreA > m.scoreB;
+                                                    const bWon = m.scoreB > m.scoreA;
+                                                    const isDraw = m.scoreA === m.scoreB;
+                                                    const nameClass = (won) => `flex-1 truncate text-sm ${won ? 'font-extrabold text-gray-900' : isDraw ? 'font-semibold text-gray-700' : 'font-medium text-gray-400'}`;
+                                                    const scoreClass = (won) => `text-base tabular-nums ${won ? 'font-extrabold text-gray-900' : isDraw ? 'font-bold text-gray-700' : 'font-semibold text-gray-400'}`;
+                                                    return (
+                                                        <div key={i} className={`p-3 rounded-xl border ${isDraw ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-200'} flex flex-col gap-1.5`}>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={nameClass(aWon)}>{m.teamA}</span>
+                                                                <span className={scoreClass(aWon)}>{m.scoreA}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={nameClass(bWon)}>{m.teamB}</span>
+                                                                <span className={scoreClass(bWon)}>{m.scoreB}</span>
+                                                            </div>
+                                                            {isDraw && <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 text-center mt-0.5">Draw</span>}
+                                                        </div>
+                                                    );
+                                                })}
+                                                {roundResults.byes.map((teamName) => (
+                                                    <div key={`bye-${teamName}`} className="p-3 rounded-xl border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center text-center">
+                                                        <div>
+                                                            <span className="block text-sm font-bold text-gray-700">{teamName}</span>
+                                                            <span className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-0.5">BYE</span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <div className="overflow-x-auto rounded-xl border border-gray-200">
                                         <table className="w-full text-sm text-left">
