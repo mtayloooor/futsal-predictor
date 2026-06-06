@@ -12,6 +12,7 @@ A single-page futsal/football league table predictor for Melbourne Social Futsal
 README.md                              - User-facing usage notes (data sources)
 index.html                             - The entire app (HTML + Tailwind + React via CDN + Babel JSX)
 futsal_results_website_crawler.py      - Playwright + BeautifulSoup scraper that produces a season JSON
+.github/workflows/crawl.yml            - Weekly GitHub Actions cron that runs the crawler and commits
 seasons/manifest.json                  - Lists every season JSON file in this repo
 seasons/<season-id>.json               - One file per season (current + historic snapshots)
 ```
@@ -24,17 +25,23 @@ There is no build step, no package.json, no tests. Edits to `index.html` ship by
 
 ```
 {
-  "latest": "2025-26-summer",
+  "latest": "2025-11",
   "seasons": [
-    { "id": "2025-26-summer", "label": "Summer 2025/26",
-      "file": "2025-26-summer.json", "competition_url": "..." }
+    { "id": "2025-11", "label": "Nov 2025 – May 2026",
+      "file": "2025-11.json", "competition_url": "..." }
   ]
 }
 ```
 
-The "Use Latest Data" flow fetches the manifest, then every referenced season JSON in parallel, then shows a season selector in the header. The two seasons-per-year cycle spans the calendar year boundary, so use IDs like `2025-26-summer` / `2026-winter`.
+Season **IDs are derived from data, not configured**. The crawler reads every match date from `team_results`, takes the first one's `YYYY-MM`, and uses that as the ID. The label is `"MMM YYYY – MMM YYYY"` spanning first and last dates. This is stable across weekly updates because the first round's date is fixed once a season starts; only the last date drifts as new fixtures get posted.
 
-The crawler script reads `COMPETITION_TABLE_URL` and `SEASON_ID` from its config block and writes `seasons/<SEASON_ID>.json`. After running it for a new season, add a corresponding entry to `manifest.json` and (usually) flip `latest` to the new ID.
+The crawler auto-upserts the manifest entry and sets `latest = <derived_id>` on every run. When the futsalhq site rolls over to a new season, the crawl produces a new ID (different `YYYY-MM` for the first match), creates a new JSON file, adds a manifest entry, and flips `latest`. The previous season's file stays as the last snapshot before the website wiped its data.
+
+**Important:** futsalhq.com.au serves only the currently-active season at `COMPETITION_TABLE_URL`. There is no way to re-crawl a historic season from the source — old seasons exist only as committed snapshots in this repo. Don't delete them.
+
+## Automated weekly crawl
+
+`.github/workflows/crawl.yml` runs the crawler every Wednesday at 22:30 Melbourne (cron `30 11 * * 3` UTC, accurate during AEDT / the active season). It installs Playwright + Chromium, runs the script, and commits any diff in `seasons/` back to `main` using the built-in `GITHUB_TOKEN`. Manual runs via `workflow_dispatch` from the Actions tab.
 
 ## Tech stack (all via CDN, no bundler)
 

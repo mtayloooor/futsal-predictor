@@ -1,0 +1,52 @@
+name: Weekly season crawl
+
+on:
+  schedule:
+    # Wed 22:30 Melbourne. The active futsal season runs through AEDT (UTC+11),
+    # so cron is 11:30 UTC = 22:30 AEDT. In AEST (winter, off-season), this
+    # fires at 21:30 Melbourne — close enough, and the off-season has no new
+    # data anyway so the run will be a no-op commit.
+    - cron: '30 11 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: crawl
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          pip install playwright beautifulsoup4
+
+      - name: Install Chromium for Playwright
+        run: |
+          playwright install --with-deps chromium
+
+      - name: Run crawler
+        run: python futsal_results_website_crawler.py
+
+      - name: Commit and push if data changed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add seasons/
+          if git diff --cached --quiet; then
+            echo "No season data changes — skipping commit."
+          else
+            git commit -m "Auto-update season data ($(date -u +%Y-%m-%d))"
+            git push
+          fi
