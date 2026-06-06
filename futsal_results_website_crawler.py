@@ -152,6 +152,64 @@ async def extract_team_results(page, team_name, team_url):
         return team_matches
 
 
+def filter_to_current_season(team_results):
+    """
+    futsalhq team pages list a team's ENTIRE match history across every
+    season they've played, while the pointscore page shows only the
+    currently-active season's standings. Without filtering, a crawl just
+    after season rollover produces incoherent output — current-season
+    standings (e.g. 1 game played per team) glued to a multi-season
+    fixture list (rounds 1-22 of the previous season + Round 1 of the new).
+
+    The current season's start is the most recent date on which any team
+    played "Round 1". Keep only matches whose date is on or after that.
+    Matches missing a parseable date are kept as a safety net.
+    """
+    round_one_dates = []
+    for matches in team_results.values():
+        for m in matches:
+            round_text = (m.get("round") or "").strip().lower()
+            if round_text != "round 1":
+                continue
+            raw = m.get("date")
+            if not raw:
+                continue
+            try:
+                round_one_dates.append(datetime.strptime(raw, DATE_FORMAT))
+            except ValueError:
+                continue
+
+    if not round_one_dates:
+        return team_results
+
+    season_start = max(round_one_dates)
+    print(f"[*] Current-season Round 1 detected on {season_start.strftime(DATE_FORMAT)} — filtering out earlier matches.")
+
+    filtered = {}
+    dropped = 0
+    for team, matches in team_results.items():
+        kept = []
+        for m in matches:
+            raw = m.get("date")
+            if not raw:
+                kept.append(m)
+                continue
+            try:
+                d = datetime.strptime(raw, DATE_FORMAT)
+            except ValueError:
+                kept.append(m)
+                continue
+            if d >= season_start:
+                kept.append(m)
+            else:
+                dropped += 1
+        filtered[team] = kept
+
+    if dropped:
+        print(f"[+] Dropped {dropped} cross-season matches from team_results.")
+    return filtered
+
+
 def derive_season_id_and_label(team_results):
     """
     Derive a stable season identifier and human-readable label from the
@@ -252,6 +310,8 @@ if __name__ == "__main__":
     print("========================================\n")
 
     data = asyncio.run(run_crawler())
+
+    data["team_results"] = filter_to_current_season(data["team_results"])
 
     season_id, label = derive_season_id_and_label(data["team_results"])
     output_file = os.path.join(SEASONS_DIR, f"{season_id}.json")
