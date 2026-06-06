@@ -15,7 +15,30 @@ from playwright.async_api import async_playwright
 COMPETITION_TABLE_URL = "https://www.futsalhq.com.au/pointscore/7636/16040"
 SEASONS_DIR = "seasons"
 MANIFEST_FILE = os.path.join(SEASONS_DIR, "manifest.json")
+DEBUG_DIR = "debug"
 DATE_FORMAT = "%a %d %b %Y"  # e.g. "Wed 19 Nov 2025"
+
+# Headless Chromium with the default user-agent gets light bot-screening from
+# some sites. A normal Chrome UA avoids that.
+USER_AGENT = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
+
+
+async def dump_debug(page, label):
+    """Save the rendered HTML and a screenshot for post-mortem debugging."""
+    try:
+        os.makedirs(DEBUG_DIR, exist_ok=True)
+        html_path = os.path.join(DEBUG_DIR, f"{label}.html")
+        png_path = os.path.join(DEBUG_DIR, f"{label}.png")
+        html = await page.content()
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        await page.screenshot(path=png_path, full_page=True)
+        print(f"    [debug] saved {html_path} and {png_path}")
+    except Exception as e:
+        print(f"    [debug] failed to dump debug artefacts: {e}")
 
 async def extract_standings_and_teams(page):
     """
@@ -27,13 +50,23 @@ async def extract_standings_and_teams(page):
     standings_data = []
 
     try:
-        await page.goto(COMPETITION_TABLE_URL, wait_until="networkidle", timeout=20000)
+        await page.goto(COMPETITION_TABLE_URL, wait_until="domcontentloaded", timeout=30000)
+        # Wait for the standings table itself instead of relying on networkidle
+        # (some pages keep long-running connections open and never go idle).
+        try:
+            await page.wait_for_selector("table.table-hover tbody tr", timeout=20000)
+        except Exception as e:
+            print(f"[-] Standings table never appeared: {e}")
+            await dump_debug(page, "standings-missing")
+            return teams_data, standings_data
+
         html_content = await page.content()
         soup = BeautifulSoup(html_content, 'html.parser')
 
         table = soup.find('table', class_=lambda x: x and all(c in x.split() for c in ['table', 'table-hover']))
         if not table:
             print("[-] Could not find the standings table. Check the page structure.")
+            await dump_debug(page, "standings-missing")
             return teams_data, standings_data
 
         headers = []
@@ -82,11 +115,21 @@ async def extract_team_results(page, team_name, team_url):
     team_matches = []
 
     try:
-        await page.goto(team_url, wait_until="networkidle", timeout=15000)
+        await page.goto(team_url, wait_until="domcontentloaded", timeout=30000)
+        # Each team should have at least one fixture link; wait for any to
+        # appear. Allow this to time out without aborting — a brand-new team
+        # could legitimately have no games listed yet.
+        try:
+            await page.wait_for_selector("a[href*='/games/team/']", timeout=15000)
+        except Exception:
+            pass
+
         html_content = await page.content()
         soup = BeautifulSoup(html_content, 'html.parser')
 
         opponent_links = soup.find_all('a', href=re.compile(r'/games/team/'))
+        if not opponent_links:
+            await dump_debug(page, f"team-{re.sub(r'[^A-Za-z0-9]+', '-', team_name).strip('-')}")
 
         for opp_tag in opponent_links:
             row = opp_tag.find_parent('div', class_=lambda c: c and 'row' in c.split())
@@ -286,7 +329,7 @@ async def run_crawler():
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context()
+        context = await browser.new_context(user_agent=USER_AGENT)
         page = await context.new_page()
 
         teams_dict, standings_list = await extract_standings_and_teams(page)

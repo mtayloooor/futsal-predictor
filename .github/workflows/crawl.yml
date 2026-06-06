@@ -37,6 +37,15 @@ jobs:
       - name: Run crawler
         run: python futsal_results_website_crawler.py
 
+      - name: Upload debug artefacts (HTML + screenshots)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawler-debug
+          path: debug/
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Commit and push if data changed
         run: |
           git config user.name 'github-actions[bot]'
