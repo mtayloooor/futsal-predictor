@@ -29,12 +29,10 @@ jobs:
           cache: pip
 
       - name: Install Python dependencies
-        run: |
-          pip install playwright beautifulsoup4
+        run: pip install -r requirements.txt
 
       - name: Install Chromium for Playwright
-        run: |
-          playwright install --with-deps chromium
+        run: playwright install --with-deps chromium
 
       - name: Run crawler
         run: python futsal_results_website_crawler.py
