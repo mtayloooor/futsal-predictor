@@ -3,26 +3,38 @@
     "standings": [
         {
             "Team": "Pique Blinders F.C.",
+            "Played": "7",
+            "Wins": "6",
+            "Draws": "0",
+            "Losses": "1",
+            "BYEs": "0",
+            "For": "54",
+            "Against": "22",
+            "Diff.": "32",
+            "Points": "21"
+        },
+        {
+            "Team": "Wednesday Knights",
             "Played": "6",
             "Wins": "5",
             "Draws": "0",
             "Losses": "1",
-            "BYEs": "0",
-            "For": "43",
-            "Against": "21",
-            "Diff.": "22",
-            "Points": "18"
+            "BYEs": "1",
+            "For": "46",
+            "Against": "23",
+            "Diff.": "23",
+            "Points": "19"
         },
         {
-            "Team": "Wednesday Knights",
-            "Played": "5",
-            "Wins": "4",
+            "Team": "Code Blue",
+            "Played": "6",
+            "Wins": "5",
             "Draws": "0",
             "Losses": "1",
             "BYEs": "1",
-            "For": "33",
+            "For": "49",
             "Against": "19",
-            "Diff.": "14",
+            "Diff.": "30",
             "Points": "16"
         },
         {
@@ -38,87 +50,75 @@
             "Points": "15"
         },
         {
-            "Team": "Code Blue",
-            "Played": "5",
-            "Wins": "4",
+            "Team": "Soccer Pals",
+            "Played": "7",
+            "Wins": "3",
             "Draws": "0",
-            "Losses": "1",
+            "Losses": "4",
             "BYEs": "0",
-            "For": "44",
-            "Against": "19",
-            "Diff.": "25",
-            "Points": "12"
+            "For": "42",
+            "Against": "43",
+            "Diff.": "-1",
+            "Points": "9"
         },
         {
             "Team": "Ctrl Alt Elite",
-            "Played": "5",
+            "Played": "6",
             "Wins": "1",
             "Draws": "0",
-            "Losses": "4",
+            "Losses": "5",
             "BYEs": "1",
-            "For": "20",
-            "Against": "29",
-            "Diff.": "-9",
+            "For": "22",
+            "Against": "35",
+            "Diff.": "-13",
             "Points": "7"
         },
         {
             "Team": "St Poorly F.C.",
-            "Played": "5",
+            "Played": "6",
             "Wins": "1",
             "Draws": "0",
-            "Losses": "4",
+            "Losses": "5",
             "BYEs": "1",
-            "For": "23",
-            "Against": "38",
-            "Diff.": "-15",
+            "For": "24",
+            "Against": "49",
+            "Diff.": "-25",
             "Points": "7"
         },
         {
             "Team": "Chef's Miss",
-            "Played": "5",
+            "Played": "6",
             "Wins": "2",
             "Draws": "0",
-            "Losses": "3",
+            "Losses": "4",
             "BYEs": "1",
-            "For": "23",
-            "Against": "53",
-            "Diff.": "-30",
+            "For": "27",
+            "Against": "66",
+            "Diff.": "-39",
             "Points": "7"
         },
         {
-            "Team": "Soccer Pals",
-            "Played": "6",
-            "Wins": "2",
-            "Draws": "0",
-            "Losses": "4",
-            "BYEs": "0",
-            "For": "36",
-            "Against": "41",
-            "Diff.": "-5",
-            "Points": "6"
-        },
-        {
             "Team": "RB Football Club",
-            "Played": "6",
+            "Played": "7",
             "Wins": "2",
             "Draws": "0",
-            "Losses": "4",
+            "Losses": "5",
             "BYEs": "0",
             "For": "30",
-            "Against": "48",
-            "Diff.": "-18",
+            "Against": "53",
+            "Diff.": "-23",
             "Points": "6"
         }
     ],
     "teams": {
         "Pique Blinders F.C.": "https://www.futsalhq.com.au/games/team/7636/103798",
         "Wednesday Knights": "https://www.futsalhq.com.au/games/team/7636/103793",
-        "Pub Squash": "https://www.futsalhq.com.au/games/team/7636/103801",
         "Code Blue": "https://www.futsalhq.com.au/games/team/7636/103795",
+        "Pub Squash": "https://www.futsalhq.com.au/games/team/7636/103801",
+        "Soccer Pals": "https://www.futsalhq.com.au/games/team/7636/103796",
         "Ctrl Alt Elite": "https://www.futsalhq.com.au/games/team/7636/103791",
         "St Poorly F.C.": "https://www.futsalhq.com.au/games/team/7636/103794",
         "Chef's Miss": "https://www.futsalhq.com.au/games/team/7636/103797",
-        "Soccer Pals": "https://www.futsalhq.com.au/games/team/7636/103796",
         "RB Football Club": "https://www.futsalhq.com.au/games/team/7636/103799"
     },
     "team_results": {
@@ -184,10 +184,10 @@
                 "time": "8:30PM",
                 "opponent": "St Poorly F.C.",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103794",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Win",
+                "score_raw": "1\n            -\n            11",
+                "this_team_score": 11,
+                "opposing_team_score": 1
             },
             {
                 "round": "Round 7",
@@ -351,10 +351,10 @@
                 "time": "7:50PM",
                 "opponent": "Chef's Miss",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103797",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Win",
+                "score_raw": "4\n            -\n            13",
+                "this_team_score": 13,
+                "opposing_team_score": 4
             },
             {
                 "round": "Round 7",
@@ -472,6 +472,184 @@
                 "time": "7:50PM",
                 "opponent": "Pique Blinders F.C.",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103798",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            }
+        ],
+        "Code Blue": [
+            {
+                "round": "Round 1",
+                "date": "Wed 10 Jun 2026",
+                "time": "6:30PM",
+                "opponent": "St Poorly F.C.",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103794",
+                "result": "Win",
+                "score_raw": "11\n            -\n            1",
+                "this_team_score": 11,
+                "opposing_team_score": 1
+            },
+            {
+                "round": "Round 2",
+                "date": "Wed 17 Jun 2026",
+                "time": "7:50PM",
+                "opponent": "Pique Blinders F.C.",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103798",
+                "result": "Win",
+                "score_raw": "5\n            -\n            4",
+                "this_team_score": 5,
+                "opposing_team_score": 4
+            },
+            {
+                "round": "Round 3",
+                "date": "Wed 24 Jun 2026",
+                "time": "7:10PM",
+                "opponent": "Soccer Pals",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103796",
+                "result": "Win",
+                "score_raw": "5\n            -\n            7",
+                "this_team_score": 7,
+                "opposing_team_score": 5
+            },
+            {
+                "round": "Round 4",
+                "date": "Wed 01 Jul 2026",
+                "time": "6:30PM",
+                "opponent": "Wednesday Knights",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103793",
+                "result": "Loss",
+                "score_raw": "5\n            -\n            6",
+                "this_team_score": 5,
+                "opposing_team_score": 6
+            },
+            {
+                "round": "Round 6",
+                "date": "Wed 15 Jul 2026",
+                "time": "7:10PM",
+                "opponent": "RB Football Club",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103799",
+                "result": "Win",
+                "score_raw": "0\n            -\n            5",
+                "this_team_score": 5,
+                "opposing_team_score": 0
+            },
+            {
+                "round": "Round 7",
+                "date": "Wed 22 Jul 2026",
+                "time": "7:10PM",
+                "opponent": "Chef's Miss",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103797",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 8",
+                "date": "Wed 29 Jul 2026",
+                "time": "7:50PM",
+                "opponent": "Ctrl Alt Elite",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103791",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 9",
+                "date": "Wed 05 Aug 2026",
+                "time": "8:30PM",
+                "opponent": "Pub Squash",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103801",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 10",
+                "date": "Wed 12 Aug 2026",
+                "time": "8:30PM",
+                "opponent": "St Poorly F.C.",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103794",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 11",
+                "date": "Wed 19 Aug 2026",
+                "time": "7:50PM",
+                "opponent": "Pique Blinders F.C.",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103798",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 12",
+                "date": "Wed 26 Aug 2026",
+                "time": "7:10PM",
+                "opponent": "Soccer Pals",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103796",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 13",
+                "date": "Wed 02 Sep 2026",
+                "time": "6:30PM",
+                "opponent": "Wednesday Knights",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103793",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 15",
+                "date": "Wed 16 Sep 2026",
+                "time": "6:30PM",
+                "opponent": "RB Football Club",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103799",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 16",
+                "date": "Wed 23 Sep 2026",
+                "time": "6:30PM",
+                "opponent": "Chef's Miss",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103797",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 17",
+                "date": "Wed 30 Sep 2026",
+                "time": "7:50PM",
+                "opponent": "Ctrl Alt Elite",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103791",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 18",
+                "date": "Wed 07 Oct 2026",
+                "time": "6:30PM",
+                "opponent": "Pub Squash",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103801",
                 "result": null,
                 "score_raw": null,
                 "this_team_score": null,
@@ -656,68 +834,79 @@
                 "opposing_team_score": null
             }
         ],
-        "Code Blue": [
+        "Soccer Pals": [
             {
                 "round": "Round 1",
                 "date": "Wed 10 Jun 2026",
-                "time": "6:30PM",
-                "opponent": "St Poorly F.C.",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103794",
-                "result": "Win",
-                "score_raw": "11\n            -\n            1",
-                "this_team_score": 11,
-                "opposing_team_score": 1
-            },
-            {
-                "round": "Round 2",
-                "date": "Wed 17 Jun 2026",
-                "time": "7:50PM",
+                "time": "8:30PM",
                 "opponent": "Pique Blinders F.C.",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103798",
-                "result": "Win",
-                "score_raw": "5\n            -\n            4",
-                "this_team_score": 5,
-                "opposing_team_score": 4
-            },
-            {
-                "round": "Round 3",
-                "date": "Wed 24 Jun 2026",
-                "time": "7:10PM",
-                "opponent": "Soccer Pals",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103796",
-                "result": "Win",
-                "score_raw": "5\n            -\n            7",
-                "this_team_score": 7,
-                "opposing_team_score": 5
-            },
-            {
-                "round": "Round 4",
-                "date": "Wed 01 Jul 2026",
-                "time": "6:30PM",
-                "opponent": "Wednesday Knights",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103793",
                 "result": "Loss",
                 "score_raw": "5\n            -\n            6",
                 "this_team_score": 5,
                 "opposing_team_score": 6
             },
             {
-                "round": "Round 6",
-                "date": "Wed 15 Jul 2026",
+                "round": "Round 2",
+                "date": "Wed 17 Jun 2026",
+                "time": "6:30PM",
+                "opponent": "Wednesday Knights",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103793",
+                "result": "Win",
+                "score_raw": "5\n            -\n            6",
+                "this_team_score": 6,
+                "opposing_team_score": 5
+            },
+            {
+                "round": "Round 3",
+                "date": "Wed 24 Jun 2026",
                 "time": "7:10PM",
+                "opponent": "Code Blue",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103795",
+                "result": "Loss",
+                "score_raw": "5\n            -\n            7",
+                "this_team_score": 5,
+                "opposing_team_score": 7
+            },
+            {
+                "round": "Round 4",
+                "date": "Wed 01 Jul 2026",
+                "time": "7:50PM",
                 "opponent": "RB Football Club",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103799",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Win",
+                "score_raw": "5\n            -\n            13",
+                "this_team_score": 13,
+                "opposing_team_score": 5
+            },
+            {
+                "round": "Round 5",
+                "date": "Wed 08 Jul 2026",
+                "time": "8:30PM",
+                "opponent": "Chef's Miss",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103797",
+                "result": "Loss",
+                "score_raw": "2\n            -\n            7",
+                "this_team_score": 2,
+                "opposing_team_score": 7
+            },
+            {
+                "round": "Round 6",
+                "date": "Wed 15 Jul 2026",
+                "time": "6:30PM",
+                "opponent": "Ctrl Alt Elite",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103791",
+                "result": "Win",
+                "score_raw": "2\n            -\n            6",
+                "this_team_score": 6,
+                "opposing_team_score": 2
             },
             {
                 "round": "Round 7",
                 "date": "Wed 22 Jul 2026",
-                "time": "7:10PM",
-                "opponent": "Chef's Miss",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103797",
+                "time": "7:50PM",
+                "opponent": "St Poorly F.C.",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103794",
                 "result": null,
                 "score_raw": null,
                 "this_team_score": null,
@@ -726,18 +915,7 @@
             {
                 "round": "Round 8",
                 "date": "Wed 29 Jul 2026",
-                "time": "7:50PM",
-                "opponent": "Ctrl Alt Elite",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103791",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 9",
-                "date": "Wed 05 Aug 2026",
-                "time": "8:30PM",
+                "time": "7:10PM",
                 "opponent": "Pub Squash",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103801",
                 "result": null,
@@ -748,17 +926,6 @@
             {
                 "round": "Round 10",
                 "date": "Wed 12 Aug 2026",
-                "time": "8:30PM",
-                "opponent": "St Poorly F.C.",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103794",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 11",
-                "date": "Wed 19 Aug 2026",
                 "time": "7:50PM",
                 "opponent": "Pique Blinders F.C.",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103798",
@@ -768,19 +935,8 @@
                 "opposing_team_score": null
             },
             {
-                "round": "Round 12",
-                "date": "Wed 26 Aug 2026",
-                "time": "7:10PM",
-                "opponent": "Soccer Pals",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103796",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 13",
-                "date": "Wed 02 Sep 2026",
+                "round": "Round 11",
+                "date": "Wed 19 Aug 2026",
                 "time": "6:30PM",
                 "opponent": "Wednesday Knights",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103793",
@@ -790,9 +946,20 @@
                 "opposing_team_score": null
             },
             {
-                "round": "Round 15",
-                "date": "Wed 16 Sep 2026",
-                "time": "6:30PM",
+                "round": "Round 12",
+                "date": "Wed 26 Aug 2026",
+                "time": "7:10PM",
+                "opponent": "Code Blue",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103795",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 13",
+                "date": "Wed 02 Sep 2026",
+                "time": "7:50PM",
                 "opponent": "RB Football Club",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103799",
                 "result": null,
@@ -801,9 +968,9 @@
                 "opposing_team_score": null
             },
             {
-                "round": "Round 16",
-                "date": "Wed 23 Sep 2026",
-                "time": "6:30PM",
+                "round": "Round 14",
+                "date": "Wed 09 Sep 2026",
+                "time": "8:30PM",
                 "opponent": "Chef's Miss",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103797",
                 "result": null,
@@ -812,9 +979,9 @@
                 "opposing_team_score": null
             },
             {
-                "round": "Round 17",
-                "date": "Wed 30 Sep 2026",
-                "time": "7:50PM",
+                "round": "Round 15",
+                "date": "Wed 16 Sep 2026",
+                "time": "7:10PM",
                 "opponent": "Ctrl Alt Elite",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103791",
                 "result": null,
@@ -823,9 +990,20 @@
                 "opposing_team_score": null
             },
             {
-                "round": "Round 18",
-                "date": "Wed 07 Oct 2026",
-                "time": "6:30PM",
+                "round": "Round 16",
+                "date": "Wed 23 Sep 2026",
+                "time": "7:10PM",
+                "opponent": "St Poorly F.C.",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103794",
+                "result": null,
+                "score_raw": null,
+                "this_team_score": null,
+                "opposing_team_score": null
+            },
+            {
+                "round": "Round 17",
+                "date": "Wed 30 Sep 2026",
+                "time": "8:30PM",
                 "opponent": "Pub Squash",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103801",
                 "result": null,
@@ -885,10 +1063,10 @@
                 "time": "6:30PM",
                 "opponent": "Soccer Pals",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103796",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Loss",
+                "score_raw": "2\n            -\n            6",
+                "this_team_score": 2,
+                "opposing_team_score": 6
             },
             {
                 "round": "Round 7",
@@ -1063,10 +1241,10 @@
                 "time": "8:30PM",
                 "opponent": "Pique Blinders F.C.",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103798",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Loss",
+                "score_raw": "1\n            -\n            11",
+                "this_team_score": 1,
+                "opposing_team_score": 11
             },
             {
                 "round": "Round 7",
@@ -1241,10 +1419,10 @@
                 "time": "7:50PM",
                 "opponent": "Wednesday Knights",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103793",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Loss",
+                "score_raw": "4\n            -\n            13",
+                "this_team_score": 4,
+                "opposing_team_score": 13
             },
             {
                 "round": "Round 7",
@@ -1368,184 +1546,6 @@
                 "opposing_team_score": null
             }
         ],
-        "Soccer Pals": [
-            {
-                "round": "Round 1",
-                "date": "Wed 10 Jun 2026",
-                "time": "8:30PM",
-                "opponent": "Pique Blinders F.C.",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103798",
-                "result": "Loss",
-                "score_raw": "5\n            -\n            6",
-                "this_team_score": 5,
-                "opposing_team_score": 6
-            },
-            {
-                "round": "Round 2",
-                "date": "Wed 17 Jun 2026",
-                "time": "6:30PM",
-                "opponent": "Wednesday Knights",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103793",
-                "result": "Win",
-                "score_raw": "5\n            -\n            6",
-                "this_team_score": 6,
-                "opposing_team_score": 5
-            },
-            {
-                "round": "Round 3",
-                "date": "Wed 24 Jun 2026",
-                "time": "7:10PM",
-                "opponent": "Code Blue",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103795",
-                "result": "Loss",
-                "score_raw": "5\n            -\n            7",
-                "this_team_score": 5,
-                "opposing_team_score": 7
-            },
-            {
-                "round": "Round 4",
-                "date": "Wed 01 Jul 2026",
-                "time": "7:50PM",
-                "opponent": "RB Football Club",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103799",
-                "result": "Win",
-                "score_raw": "5\n            -\n            13",
-                "this_team_score": 13,
-                "opposing_team_score": 5
-            },
-            {
-                "round": "Round 5",
-                "date": "Wed 08 Jul 2026",
-                "time": "8:30PM",
-                "opponent": "Chef's Miss",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103797",
-                "result": "Loss",
-                "score_raw": "2\n            -\n            7",
-                "this_team_score": 2,
-                "opposing_team_score": 7
-            },
-            {
-                "round": "Round 6",
-                "date": "Wed 15 Jul 2026",
-                "time": "6:30PM",
-                "opponent": "Ctrl Alt Elite",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103791",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 7",
-                "date": "Wed 22 Jul 2026",
-                "time": "7:50PM",
-                "opponent": "St Poorly F.C.",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103794",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 8",
-                "date": "Wed 29 Jul 2026",
-                "time": "7:10PM",
-                "opponent": "Pub Squash",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103801",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 10",
-                "date": "Wed 12 Aug 2026",
-                "time": "7:50PM",
-                "opponent": "Pique Blinders F.C.",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103798",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 11",
-                "date": "Wed 19 Aug 2026",
-                "time": "6:30PM",
-                "opponent": "Wednesday Knights",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103793",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 12",
-                "date": "Wed 26 Aug 2026",
-                "time": "7:10PM",
-                "opponent": "Code Blue",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103795",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 13",
-                "date": "Wed 02 Sep 2026",
-                "time": "7:50PM",
-                "opponent": "RB Football Club",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103799",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 14",
-                "date": "Wed 09 Sep 2026",
-                "time": "8:30PM",
-                "opponent": "Chef's Miss",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103797",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 15",
-                "date": "Wed 16 Sep 2026",
-                "time": "7:10PM",
-                "opponent": "Ctrl Alt Elite",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103791",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 16",
-                "date": "Wed 23 Sep 2026",
-                "time": "7:10PM",
-                "opponent": "St Poorly F.C.",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103794",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            },
-            {
-                "round": "Round 17",
-                "date": "Wed 30 Sep 2026",
-                "time": "8:30PM",
-                "opponent": "Pub Squash",
-                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103801",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
-            }
-        ],
         "RB Football Club": [
             {
                 "round": "Round 1",
@@ -1608,10 +1608,10 @@
                 "time": "7:10PM",
                 "opponent": "Code Blue",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103795",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Loss",
+                "score_raw": "0\n            -\n            5",
+                "this_team_score": 0,
+                "opposing_team_score": 5
             },
             {
                 "round": "Round 8",
