@@ -3,98 +3,98 @@
     "standings": [
         {
             "Team": "Pique Blinders F.C.",
-            "Played": "15",
-            "Wins": "12",
+            "Played": "16",
+            "Wins": "13",
             "Draws": "0",
             "Losses": "3",
             "BYEs": "1",
-            "For": "109",
+            "For": "112",
             "Against": "49",
-            "Diff.": "60",
-            "Points": "40"
+            "Diff.": "63",
+            "Points": "43"
         },
         {
             "Team": "Code Blue",
-            "Played": "14",
-            "Wins": "11",
+            "Played": "15",
+            "Wins": "12",
             "Draws": "1",
             "Losses": "2",
             "BYEs": "2",
-            "For": "103",
+            "For": "108",
             "Against": "47",
-            "Diff.": "56",
-            "Points": "36"
+            "Diff.": "61",
+            "Points": "39"
         },
         {
             "Team": "Wednesday Knights",
-            "Played": "14",
-            "Wins": "9",
+            "Played": "15",
+            "Wins": "10",
             "Draws": "3",
             "Losses": "2",
             "BYEs": "2",
-            "For": "87",
-            "Against": "52",
-            "Diff.": "35",
-            "Points": "35"
+            "For": "101",
+            "Against": "53",
+            "Diff.": "48",
+            "Points": "38"
         },
         {
             "Team": "Pub Squash",
-            "Played": "14",
+            "Played": "15",
             "Wins": "8",
             "Draws": "3",
-            "Losses": "3",
+            "Losses": "4",
             "BYEs": "2",
             "For": "97",
-            "Against": "57",
-            "Diff.": "40",
+            "Against": "60",
+            "Diff.": "37",
             "Points": "31"
         },
         {
             "Team": "Soccer Pals",
-            "Played": "15",
-            "Wins": "9",
+            "Played": "16",
+            "Wins": "10",
             "Draws": "0",
             "Losses": "6",
             "BYEs": "1",
-            "For": "87",
-            "Against": "74",
-            "Diff.": "13",
-            "Points": "28"
+            "For": "93",
+            "Against": "76",
+            "Diff.": "17",
+            "Points": "31"
         },
         {
             "Team": "St Poorly F.C.",
-            "Played": "14",
+            "Played": "15",
             "Wins": "3",
             "Draws": "1",
-            "Losses": "10",
+            "Losses": "11",
             "BYEs": "2",
-            "For": "76",
-            "Against": "101",
-            "Diff.": "-25",
+            "For": "78",
+            "Against": "107",
+            "Diff.": "-29",
             "Points": "15"
         },
         {
             "Team": "Chef's Miss",
-            "Played": "14",
+            "Played": "15",
             "Wins": "4",
             "Draws": "0",
-            "Losses": "10",
+            "Losses": "11",
             "BYEs": "2",
             "For": "65",
-            "Against": "115",
-            "Diff.": "-50",
+            "Against": "120",
+            "Diff.": "-55",
             "Points": "14"
         },
         {
             "Team": "Sporting Club De Carlton",
-            "Played": "14",
+            "Played": "15",
             "Wins": "2",
             "Draws": "1",
-            "Losses": "11",
+            "Losses": "12",
             "BYEs": "2",
-            "For": "48",
-            "Against": "113",
-            "Diff.": "-65",
+            "For": "49",
+            "Against": "127",
+            "Diff.": "-78",
             "Points": "12"
         },
         {
@@ -103,11 +103,11 @@
             "Wins": "2",
             "Draws": "2",
             "Losses": "11",
-            "BYEs": "1",
+            "BYEs": "2",
             "For": "56",
             "Against": "109",
             "Diff.": "-53",
-            "Points": "9"
+            "Points": "10"
         }
     ],
     "teams": {
@@ -283,10 +283,10 @@
                 "time": "7:50PM",
                 "opponent": "Pub Squash",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103801",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Win",
+                "score_raw": "3\n            -\n            0",
+                "this_team_score": 3,
+                "opposing_team_score": 0
             },
             {
                 "round": "Round 18",
@@ -450,10 +450,10 @@
                 "time": "6:30PM",
                 "opponent": "Chef's Miss",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103797",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Win",
+                "score_raw": "5\n            -\n            0",
+                "this_team_score": 5,
+                "opposing_team_score": 0
             },
             {
                 "round": "Round 17",
@@ -628,10 +628,10 @@
                 "time": "8:30PM",
                 "opponent": "Sporting Club De Carlton",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103791",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Win",
+                "score_raw": "14\n            -\n            1",
+                "this_team_score": 14,
+                "opposing_team_score": 1
             },
             {
                 "round": "Round 17",
@@ -806,10 +806,10 @@
                 "time": "7:50PM",
                 "opponent": "Pique Blinders F.C.",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103798",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Loss",
+                "score_raw": "3\n            -\n            0",
+                "this_team_score": 0,
+                "opposing_team_score": 3
             },
             {
                 "round": "Round 17",
@@ -995,10 +995,10 @@
                 "time": "7:10PM",
                 "opponent": "St Poorly F.C.",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103794",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Win",
+                "score_raw": "6\n            -\n            2",
+                "this_team_score": 6,
+                "opposing_team_score": 2
             },
             {
                 "round": "Round 17",
@@ -1162,10 +1162,10 @@
                 "time": "7:10PM",
                 "opponent": "Soccer Pals",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103796",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Loss",
+                "score_raw": "6\n            -\n            2",
+                "this_team_score": 2,
+                "opposing_team_score": 6
             },
             {
                 "round": "Round 17",
@@ -1340,10 +1340,10 @@
                 "time": "6:30PM",
                 "opponent": "Code Blue",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103795",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Loss",
+                "score_raw": "5\n            -\n            0",
+                "this_team_score": 0,
+                "opposing_team_score": 5
             },
             {
                 "round": "Round 17",
@@ -1518,10 +1518,10 @@
                 "time": "8:30PM",
                 "opponent": "Wednesday Knights",
                 "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103793",
-                "result": null,
-                "score_raw": null,
-                "this_team_score": null,
-                "opposing_team_score": null
+                "result": "Loss",
+                "score_raw": "14\n            -\n            1",
+                "this_team_score": 1,
+                "opposing_team_score": 14
             },
             {
                 "round": "Round 17",
