@@ -309,6 +309,17 @@
                 "score_raw": "1\n            -\n            4",
                 "this_team_score": 1,
                 "opposing_team_score": 4
+            },
+            {
+                "round": "Grand Finals",
+                "date": "Wed 21 Oct 2026",
+                "time": "8:00PM",
+                "opponent": "Pique Blinders F.C.",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103798",
+                "result": "Loss",
+                "score_raw": "2\n            -\n            7",
+                "this_team_score": 2,
+                "opposing_team_score": 7
             }
         ],
         "Pique Blinders F.C.": [
@@ -498,6 +509,17 @@
                 "score_raw": "2\n            -\n            5",
                 "this_team_score": 2,
                 "opposing_team_score": 5
+            },
+            {
+                "round": "Grand Finals",
+                "date": "Wed 21 Oct 2026",
+                "time": "8:00PM",
+                "opponent": "Wednesday Knights",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103793",
+                "result": "Win",
+                "score_raw": "2\n            -\n            7",
+                "this_team_score": 7,
+                "opposing_team_score": 2
             }
         ],
         "Code Blue": [
@@ -687,6 +709,17 @@
                 "score_raw": "2\n            -\n            5",
                 "this_team_score": 5,
                 "opposing_team_score": 2
+            },
+            {
+                "round": "Grand Finals",
+                "date": "Wed 21 Oct 2026",
+                "time": "7:10PM",
+                "opponent": "Soccer Pals",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103796",
+                "result": "Win",
+                "score_raw": "3\n            -\n            5",
+                "this_team_score": 5,
+                "opposing_team_score": 3
             }
         ],
         "Soccer Pals": [
@@ -876,6 +909,17 @@
                 "score_raw": "1\n            -\n            4",
                 "this_team_score": 4,
                 "opposing_team_score": 1
+            },
+            {
+                "round": "Grand Finals",
+                "date": "Wed 21 Oct 2026",
+                "time": "7:10PM",
+                "opponent": "Code Blue",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103795",
+                "result": "Loss",
+                "score_raw": "3\n            -\n            5",
+                "this_team_score": 3,
+                "opposing_team_score": 5
             }
         ],
         "Pub Squash": [
@@ -1065,6 +1109,17 @@
                 "score_raw": "7\n            -\n            2",
                 "this_team_score": 7,
                 "opposing_team_score": 2
+            },
+            {
+                "round": "Grand Finals",
+                "date": "Wed 21 Oct 2026",
+                "time": "6:30PM",
+                "opponent": "RB Football Club",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103799",
+                "result": "Win",
+                "score_raw": "7\n            -\n            1",
+                "this_team_score": 7,
+                "opposing_team_score": 1
             }
         ],
         "Chef's Miss": [
@@ -1443,6 +1498,17 @@
                 "score_raw": "0\n            -\n            5",
                 "this_team_score": 5,
                 "opposing_team_score": 0
+            },
+            {
+                "round": "Grand Finals",
+                "date": "Wed 21 Oct 2026",
+                "time": "6:30PM",
+                "opponent": "Pub Squash",
+                "opponent_url": "https://www.futsalhq.com.au/games/team/7636/103801",
+                "result": "Loss",
+                "score_raw": "7\n            -\n            1",
+                "this_team_score": 1,
+                "opposing_team_score": 7
             }
         ],
         "St Poorly F.C.": [
