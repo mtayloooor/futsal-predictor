@@ -1,5 +1,5 @@
 {
-    "latest": "2026-06",
+    "latest": "2026-10",
     "seasons": [
         {
             "id": "2025-11",
@@ -11,6 +11,12 @@
             "id": "2026-06",
             "label": "Jun 2026 – Oct 2026",
             "file": "2026-06.json",
+            "competition_url": "https://www.futsalhq.com.au/pointscore/7636/16040"
+        },
+        {
+            "id": "2026-10",
+            "label": "Oct 2026 – Mar 2027",
+            "file": "2026-10.json",
             "competition_url": "https://www.futsalhq.com.au/pointscore/7636/16040"
         }
     ]
